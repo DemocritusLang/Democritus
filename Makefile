@@ -5,6 +5,19 @@
 
 # Easiest way to build: using ocamlbuild, which in turn uses ocamlfind
 
+testmake:
+	ocamllex scanner.mll
+	ocamlyacc parser.mly
+	ocamlc -c ast.ml
+	ocamlc -c parser.mli
+	ocamlc -c scanner.ml
+	ocamlc -c parser.ml
+	ocamlc -c test.ml
+	ocamlc -o test parser.cmo scanner.cmo test.cmo
+
+testclean:
+	rm -f *cmo *cmi parser.mli parser.ml scanner.ml ./test
+
 microc.native :
 	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
 		microc.native
