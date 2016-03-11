@@ -5,11 +5,12 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
+%token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL VOID
-%token <int> LITERAL
+%token RETURN IF ELSE FOR WHILE INT FLOAT CHAR BOOLEAN INTPTR FLOATPTR CHARPTR BOOLEANPTR VOID NULL STRING STRUCT
+%token <int> INTLITERAL
+%token <float> FLOATLITERAL
 %token <string> ID
 %token EOF
 
@@ -55,7 +56,8 @@ formal_list:
 
 typ:
     INT { Int }
-  | BOOL { Bool }
+  | FLOAT { Float }
+  | BOOLEAN { Boolean }
   | VOID { Void }
 
 vdecl_list:
@@ -85,7 +87,8 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1) }
+    INTLITERAL       { IntLiteral($1) }
+  | FLOATLITERAL     { FloatLiteral($1) }
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | ID               { Id($1) }

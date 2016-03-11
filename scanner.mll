@@ -3,6 +3,8 @@
 
 { open Parser }
 
+let Exp = ('e'|'E') ('+'|'-')? ['0'-'9']+
+
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*"     { comment lexbuf }           (* Comments *)
@@ -10,6 +12,8 @@ rule token = parse
 | ')'      { RPAREN }
 | '{'      { LBRACE }
 | '}'      { RBRACE }
+| '['      { LBRACKET }
+| ']'      { RBRACKET }
 | ';'      { SEMI }
 | ','      { COMMA }
 | '+'      { PLUS }
@@ -32,11 +36,21 @@ rule token = parse
 | "while"  { WHILE }
 | "return" { RETURN }
 | "int"    { INT }
-| "bool"   { BOOL }
+| "float"  { FLOAT }
+| "char"   { CHAR }
+| "boolean"   { BOOLEAN }
+| "int*"   { INTPTR }
+| "float*" { FLOATPTR }
+| "char*"  { CHARPTR }
+| "boolean*"  { BOOLEANPTR }
+| "null"   { NULL }
 | "void"   { VOID }
 | "true"   { TRUE }
 | "false"  { FALSE }
-| ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
+| "string" { STRING }
+| "struct" { STRUCT }
+| ['0'-'9']+ as lxm { INTLITERAL(int_of_string lxm) }
+| ('.' ['0'-'9']+ Exp? | ['0'-'9']+ ('.' ['0'-'9'] | Exp)) as lxm { FLOATLITERAL(float_of_string lxm)}
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
