@@ -4,7 +4,7 @@
 { open Parser }
 
 let Exp = ('e'|'E') ('+'|'-')? ['0'-'9']+
-
+let Digit = ['0'-'9']
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "/*"     { comment lexbuf }           (* Comments *)
@@ -49,8 +49,8 @@ rule token = parse
 | "false"  { FALSE }
 | "string" { STRING }
 | "struct" { STRUCT }
-| ['0'-'9']+ as lxm { INTLITERAL(int_of_string lxm) }
-| ('.' ['0'-'9']+ Exp? | ['0'-'9']+ ('.' ['0'-'9'] | Exp)) as lxm { FLOATLITERAL(float_of_string lxm)}
+| Digit+ as lxm { INTLITERAL(int_of_string lxm) }
+| ('.' Digit+ Exp? | Digit+ ('.' Digit* Exp? | Exp)) as lxm { FLOATLITERAL(float_of_string lxm)}
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
