@@ -16,7 +16,7 @@ testmake:
 	ocamlc -o test parser.cmo scanner.cmo test.cmo
 
 testclean:
-	rm -f *cmo *cmi parser.mli parser.ml scanner.ml ./test
+	rm -f *cmo *cmi parser.mli parser.ml scanner.ml ./test *output
 
 microc.native :
 	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \

@@ -21,13 +21,14 @@ let third (_,_,c) = c;;
 
 %nonassoc NOELSE
 %nonassoc ELSE
+%nonassoc POINTER
 %right ASSIGN
 %left OR
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE MODULO
+%left STAR DIVIDE MODULO
 %right NOT NEG DEREF
 
 %start program
@@ -63,7 +64,7 @@ formal_list:
 
 pretyp_modifier: ATOMIC { Atomic }
 
-postyp_modifier: STAR { Pointer }
+postyp_modifier: STAR %prec POINTER { Pointer }
 
 primitive_typ:
     NULL { Null }
@@ -119,7 +120,7 @@ expr:
   | ID               { Id($1) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
-  | expr STAR  expr %prec TIMES { Binop($1, Mult,  $3) }
+  | expr STAR  expr  { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
   | expr MODULO expr { Binop($1, Mod,   $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
