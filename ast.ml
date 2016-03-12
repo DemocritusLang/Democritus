@@ -2,9 +2,9 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or | Mod
+          And | Or | Mod | LShift | RShift
 
-type uop = Neg | Not | Deref
+type uop = Neg | Not | Deref | Ref
 
 type pretyp_modifier = Atomic
 type posttyp_modifier = Pointer
@@ -68,11 +68,14 @@ let string_of_op = function
   | And -> "&&"
   | Or -> "||"
   | Mod -> "%"
+  | RShift -> ">>"
+  | LShift -> "<<"
 
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
   | Deref -> "*"
+  | Ref -> "&"
 
 let rec string_of_expr = function
     IntLiteral(l) -> string_of_int l

@@ -27,9 +27,10 @@ let third (_,_,c) = c;;
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
+%left LSHIFT RSHIFT
 %left PLUS MINUS
 %left STAR DIVIDE MODULO
-%right NOT NEG DEREF
+%right NOT NEG DEREF AMPERSAND
 
 %start program
 %type <Ast.program> program
@@ -131,8 +132,11 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
+  | expr RSHIFT expr { Binop($1, RShift,    $3) }
+  | expr LSHIFT expr { Binop($1, LShift,    $3) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | STAR expr %prec DEREF { Unop(Deref, $2) }
+  | AMPERSAND expr { Unop(Ref, $2) }
   | NOT expr         { Unop(Not, $2) }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
