@@ -27,7 +27,7 @@ let third (_,_,c) = c;;
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
+%left TIMES DIVIDE MODULO
 %right NOT NEG
 
 %start program
