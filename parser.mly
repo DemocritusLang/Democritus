@@ -54,11 +54,23 @@ formal_list:
     typ ID                   { [($1,$2)] }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-typ:
-    INT { Int }
+modifier: ATOMIC { Atomic }
+
+formal_typ:
+    NULL { Null }
+  | INT { Int }
   | FLOAT { Float }
+  | CHAR { Char }
   | BOOLEAN { Boolean }
+  | INTPTR { IntPtr }
+  | FLOATPTR { FloatPtr }
+  | CHARPTR { CharPtr }
+  | BOOLEANPTR { BooleanPtr }
   | VOID { Void }
+
+typ:
+    modifier formal_typ { ModType($1, $2) }
+  | formal_typ { FormalType($1) }
 
 vdecl_list:
     /* nothing */    { [] }

@@ -6,7 +6,13 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Float | Boolean | Void
+type modifier = Atomic
+
+type formal_typ = Null | Int | Float | Char | Boolean | Void | IntPtr | FloatPtr | CharPtr | BooleanPtr
+
+type typ = 
+    ModType of modifier * formal_typ
+  | FormalType of formal_typ
 
 type bind = typ * string
 
@@ -86,11 +92,24 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_typ = function
+let string_of_modifier = function
+    Atomic -> "atomic"
+
+let string_of_formaltyp = function
     Int -> "int"
   | Float -> "float"
+  | Char -> "char"
   | Boolean -> "boolean"
   | Void -> "void"
+  | Null -> "null"
+  | IntPtr -> "int pointer"
+  | CharPtr -> "char pointer"
+  | FloatPtr -> "float pointer"
+  | BooleanPtr -> "boolean pointer"
+
+let string_of_typ = function
+    ModType(m, t) -> string_of_modifier m ^ " " ^ string_of_formaltyp t
+  | FormalType(s) -> string_of_formaltyp s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
