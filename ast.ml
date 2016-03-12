@@ -8,7 +8,7 @@ type uop = Neg | Not | Deref | Ref
 
 type pretyp_modifier = Atomic
 type posttyp_modifier = Pointer
-type primitive_typ = Null | Int | Float | Char | Boolean | Void
+type primitive_typ = Null | Int | Float | Char | Boolean | Void | StructType
 
 type typ = 
     PrePostModType of pretyp_modifier * primitive_typ * posttyp_modifier
@@ -117,6 +117,7 @@ let string_of_primitivetyp = function
   | Boolean -> "boolean"
   | Void -> "void"
   | Null -> "null"
+  | StructType -> "struct"
 
 let string_of_typ = function
   | PrePostModType (m1, t, m2) -> string_of_premodifier m1 ^ " " ^ 

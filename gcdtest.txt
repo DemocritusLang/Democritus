@@ -6,6 +6,7 @@ int gcd(atomic int* a, int b) {
 	return a; 
 }
 int main() {
+    struct blah  a;
     print(gcd(2.0,14e+1)); print(gcd(3,15)); 
 	print(gcd(0.1E-1,121)); 
 	return 0;
