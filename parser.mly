@@ -73,6 +73,8 @@ primitive_typ:
   | CHAR { Char }
   | BOOLEAN { Boolean }
   | VOID { Void }
+  | STRUCT ID { StructType }
+
 
 typ:
     pretyp_modifier primitive_typ postyp_modifier { PrePostModType ($1, $2, $3) }
