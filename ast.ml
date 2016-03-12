@@ -45,7 +45,12 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type struct_decl = {
+    sname : string;
+    formals: bind list;
+}
+
+type program = bind list * func_decl list * struct_decl list
 
 (* Pretty-printing functions *)
 
