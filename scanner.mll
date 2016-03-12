@@ -19,7 +19,7 @@ rule token = parse
 | ','           { COMMA }
 | '+'           { PLUS }
 | '-'           { MINUS }
-| '*'           { TIMES }
+| '*'           { STAR }
 | '/'           { DIVIDE }
 | '%'           { MODULO }
 | ">>"          { RSHIFT }
@@ -49,10 +49,6 @@ rule token = parse
 | "float"       { FLOAT }
 | "char"        { CHAR }
 | "boolean"     { BOOLEAN }
-| "int*"        { INTPTR }
-| "float*"      { FLOATPTR }
-| "char*"       { CHARPTR }
-| "boolean*"    { BOOLEANPTR }
 | "null"        { NULL }
 | "void"        { VOID }
 | "true"        { TRUE }

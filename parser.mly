@@ -6,9 +6,9 @@ open Ast
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
-%token PLUS MINUS TIMES DIVIDE ASSIGN MODULO RSHIFT LSHIFT AMPERSAND 
+%token PLUS MINUS STAR DIVIDE ASSIGN MODULO RSHIFT LSHIFT AMPERSAND 
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR NOT
-%token FUNCTION RETURN IF ELSE ELIF FOR WHILE INT FLOAT CHAR BOOLEAN INTPTR FLOATPTR CHARPTR BOOLEANPTR VOID NULL STRING STRUCT ATOMIC CONTINUE BREAK
+%token FUNCTION RETURN IF ELSE ELIF FOR WHILE INT FLOAT CHAR BOOLEAN VOID NULL STRING STRUCT ATOMIC CONTINUE BREAK
 %token <int> INTLITERAL
 %token <float> FLOATLITERAL
 %token <string> ID
@@ -22,8 +22,8 @@ open Ast
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
-%right NOT NEG
+%left TIMES DIVIDE MODULO
+%right NOT NEG DEREF
 
 %start program
 %type <Ast.program> program
@@ -54,23 +54,23 @@ formal_list:
     typ ID                   { [($1,$2)] }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-modifier: ATOMIC { Atomic }
+pretyp_modifier: ATOMIC { Atomic }
 
-formal_typ:
+postyp_modifier: STAR { Pointer }
+
+primitive_typ:
     NULL { Null }
   | INT { Int }
   | FLOAT { Float }
   | CHAR { Char }
   | BOOLEAN { Boolean }
-  | INTPTR { IntPtr }
-  | FLOATPTR { FloatPtr }
-  | CHARPTR { CharPtr }
-  | BOOLEANPTR { BooleanPtr }
   | VOID { Void }
 
 typ:
-    modifier formal_typ { ModType($1, $2) }
-  | formal_typ { FormalType($1) }
+    pretyp_modifier primitive_typ postyp_modifier { PrePostModType ($1, $2, $3) }
+  | primitive_typ postyp_modifier { PostModType ($1, $2) }
+  | pretyp_modifier primitive_typ { PreModType($1, $2) }
+  | primitive_typ { PrimitiveType($1) }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -106,7 +106,7 @@ expr:
   | ID               { Id($1) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
-  | expr TIMES  expr { Binop($1, Mult,  $3) }
+  | expr STAR  expr %prec TIMES { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
   | expr MODULO expr { Binop($1, Mod,   $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
@@ -118,6 +118,7 @@ expr:
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
+  | STAR expr %prec DEREF { Unop(Deref, $2) }
   | NOT expr         { Unop(Not, $2) }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }

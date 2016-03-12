@@ -4,15 +4,17 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or | Mod
 
-type uop = Neg | Not
+type uop = Neg | Not | Deref
 
-type modifier = Atomic
-
-type formal_typ = Null | Int | Float | Char | Boolean | Void | IntPtr | FloatPtr | CharPtr | BooleanPtr
+type pretyp_modifier = Atomic
+type posttyp_modifier = Pointer
+type primitive_typ = Null | Int | Float | Char | Boolean | Void
 
 type typ = 
-    ModType of modifier * formal_typ
-  | FormalType of formal_typ
+    PrePostModType of pretyp_modifier * primitive_typ * posttyp_modifier
+  | PostModType of primitive_typ * posttyp_modifier
+  | PreModType of pretyp_modifier * primitive_typ
+  | PrimitiveType of primitive_typ
 
 type bind = typ * string
 
@@ -65,6 +67,7 @@ let string_of_op = function
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
+  | Deref -> "*"
 
 let rec string_of_expr = function
     IntLiteral(l) -> string_of_int l
@@ -93,24 +96,26 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_modifier = function
+let string_of_premodifier = function
     Atomic -> "atomic"
 
-let string_of_formaltyp = function
+let string_of_postmodifier = function
+    Pointer -> "*"
+
+let string_of_primitivetyp = function
     Int -> "int"
   | Float -> "float"
   | Char -> "char"
   | Boolean -> "boolean"
   | Void -> "void"
   | Null -> "null"
-  | IntPtr -> "int pointer"
-  | CharPtr -> "char pointer"
-  | FloatPtr -> "float pointer"
-  | BooleanPtr -> "boolean pointer"
 
 let string_of_typ = function
-    ModType(m, t) -> string_of_modifier m ^ " " ^ string_of_formaltyp t
-  | FormalType(s) -> string_of_formaltyp s
+  | PrePostModType (m1, t, m2) -> string_of_premodifier m1 ^ " " ^ 
+    string_of_primitivetyp t ^ " " ^ string_of_postmodifier m2
+  | PostModType(t, m) -> string_of_primitivetyp t ^ " " ^ string_of_postmodifier m
+  | PreModType(m, t) -> string_of_premodifier m ^ " " ^ string_of_primitivetyp t
+  | PrimitiveType(s) -> string_of_primitivetyp s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
