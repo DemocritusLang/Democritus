@@ -2,7 +2,12 @@
 /* Ocamlyacc parser for MicroC */
 
 %{
-open Ast
+open Ast;;
+
+let first (a, _,_) = a;;
+let second (_,b,_) = b;;
+let third (_,_,c) = c;;
+
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
@@ -33,10 +38,12 @@ open Ast
 program:
   decls EOF { $1 }
 
+
 decls:
-   /* nothing */ { [], [] }
- | decls vdecl { ($2 :: fst $1), snd $1 }
- | decls fdecl { fst $1, ($2 :: snd $1) }
+   /* nothing */ { [], [], [] }
+ | decls vdecl { ($2 :: first $1), second $1, third $1 }
+ | decls fdecl { first $1, ($2 :: second $1), third $1 }
+ | decls sdecl {  first $1, second $1, ($2:: third $1) }
 
 fdecl:
    typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
@@ -78,6 +85,12 @@ vdecl_list:
 
 vdecl:
    typ ID SEMI { ($1, $2) }
+
+sdecl:
+    STRUCT ID LBRACE vdecl_list RBRACE 
+        { { sname = $2;
+        formals = $4;
+        } }
 
 stmt_list:
     /* nothing */  { [] }
