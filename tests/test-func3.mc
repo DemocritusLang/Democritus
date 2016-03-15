@@ -1,4 +1,4 @@
-function void print_intem(int a, int b, int c, int d)
+function print_intem(a int, b int, c int, d int) void
 {
   print_int(a);
   print_int(b);
@@ -6,7 +6,7 @@ function void print_intem(int a, int b, int c, int d)
   print_int(d);
 }
 
-function int main()
+function main() int
 {
   print_intem(42,17,192,8);
   return 0;

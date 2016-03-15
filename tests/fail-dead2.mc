@@ -1,6 +1,6 @@
-function int main()
+function main() int
 {
-  int i;  
+  i int;  
 
   {
     i = 15;

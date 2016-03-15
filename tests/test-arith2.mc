@@ -1,4 +1,4 @@
-function int main()
+function main() int
 {
   print_int(1 + 2 * 3 + 4);
   return 0;

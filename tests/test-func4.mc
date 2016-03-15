@@ -1,13 +1,13 @@
-function int add(int a, int b)
+function add(a int, b int) int
 {
-  int c;
+  c int;
   c = a + b;
   return c;
 }
 
-function int main()
+function main() int
 {
-  int d;
+  d int;
   d = add(52, 10);
   print_int(d);
   return 0;

@@ -1,4 +1,4 @@
-function int main()
+function main() int
 {
   if (true) print_int(42);
   print_int(17);

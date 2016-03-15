@@ -1,13 +1,13 @@
-function void foo(int a, bool b)
+function foo(a int, b bool) void
 {
 }
 
-function void bar()
+function bar() void
 {
 }
 
-function int main()
+function main() int
 {
   foo(42, true);
-  foo(42, bar()); /* int and void, not int and bool */
+  foo(42, bar()); /* and int void, not and int bool */
 }

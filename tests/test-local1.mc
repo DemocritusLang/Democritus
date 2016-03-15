@@ -1,12 +1,12 @@
-function void foo(bool i)
+function foo(i bool) void
 {
-  int i; /* Should hide the formal i */
+  i int; /* Should hide the formal i */
 
   i = 42;
   print_int(i + i);
 }
 
-function int main()
+function main() int
 {
   foo(true);
   return 0;

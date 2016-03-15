@@ -1,7 +1,7 @@
-function int main()
+function main() int
 {
-  int i;
-  bool b;
+  i int;
+  b bool;
 
   b = 48; /* Fail: assigning an integer to a bool */
 }

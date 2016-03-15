@@ -1,6 +1,6 @@
-function int main()
+function main() int
 {
-  int i;
+  i int;
 
   for (i = 0; i ; i = i + 1) {} /* i is an integer, not Boolean */
 

@@ -1,9 +1,9 @@
-function int foo(int a)
+function foo(a int) int
 {
   return a;
 }
 
-function int main()
+function main() int
 {
   return 0;
 }

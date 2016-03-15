@@ -1,12 +1,12 @@
-function int foo() {}
+function foo() int {}
 
-function void bar() {}
+function bar() void {}
 
-function int print() {} /* Should not be able to define print_int */
+function print() int {} /* Should not be able to define print */
 
-function void baz() {}
+function baz() void {}
 
-function int main()
+function main() int
 {
   return 0;
 }

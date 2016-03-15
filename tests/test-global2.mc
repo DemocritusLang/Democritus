@@ -1,8 +1,8 @@
-bool i;
+i bool;
 
-function int main()
+function main() int
 {
-  int i; /* Should hide the global i */
+  i int; /* Should hide the global i */
 
   i = 42;
   print_int(i + i);

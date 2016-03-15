@@ -1,10 +1,10 @@
-int a;
-bool b;
+a int;
+b bool;
 
-function void foo(int c, bool d)
+function foo(c int, d bool) void
 {
-  int dd;
-  bool e;
+  dd int;
+  e bool;
   a + c;
   c - a;
   a * 3;
@@ -12,7 +12,7 @@ function void foo(int c, bool d)
   d + a; /* Error: bool + int */
 }
 
-function int main()
+function main() int
 {
   return 0;
 }

@@ -1,9 +1,9 @@
-int c;
-bool b;
-void a; /* global variables should not be void */
+c int;
+b bool;
+a void; /* global variables should not be void */
 
 
-function int main()
+function main() int
 {
   return 0;
 }

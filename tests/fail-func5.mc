@@ -1,14 +1,14 @@
-function int foo() {}
+function foo() int {}
 
-function int bar() {
-  int a;
-  void b; /* Error: illegal void local b */
-  bool c;
+function bar() int {
+  a int;
+  b void; /* Error: illegal local void b */
+  c bool;
 
   return 0;
 }
 
-function int main()
+function main() int
 {
   return 0;
 }

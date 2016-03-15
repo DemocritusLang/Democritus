@@ -1,8 +1,8 @@
-function int foo(int a, bool b, int c) { }
+function foo(a int, b bool, c int) int { }
 
-function void bar(int a, void b, int c) {} /* Error: illegal void formal b */
+function bar(a int, b void, c int) void {} /* Error: illegal formal void b */
 
-function int main()
+function main() int
 {
   return 0;
 }
