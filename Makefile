@@ -58,12 +58,12 @@ parser.cmi : ast.cmo
 
 TESTS = arith1 arith2 arith3 fib for1 for2 func1 func2 func3 func4	\
     func5 gcd2 gcd global1 global2 hello if1 if2 if3 if4 ops1 ops2	\
-    var1 while1 local1
+    var1 for-as-while1 local1
 
 FAILS = assign1 assign2 assign3 dead1 dead2 expr1 expr2 for1 for2	\
     for3 for4 for5 func1 func2 func3 func4 func5 func6 func7 func8	\
-    func9 global1 global2 if1 if2 if3 nomain return1 return2 while1	\
-    while2
+    func9 global1 global2 if1 if2 if3 nomain return1 return2		 \
+    for-all-while1 for-all-while2
 
 TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)

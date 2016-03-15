@@ -2,11 +2,11 @@ int main()
 {
   int i;
 
-  while (true) {
+  for (true) {
     i = i + 1;
   }
 
-  while (42) { /* Should be boolean */
+  for (42) { /* Should be boolean */
     i = i + 1;
   }
 

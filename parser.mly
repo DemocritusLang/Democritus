@@ -8,7 +8,7 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL VOID
+%token RETURN IF ELSE FOR INT BOOL VOID
 %token <int> LITERAL
 %token <string> ID
 %token EOF
@@ -78,7 +78,7 @@ stmt:
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
-  | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+  | FOR LPAREN expr RPAREN stmt { While($3, $5) }
 
 expr_opt:
     /* nothing */ { Noexpr }
