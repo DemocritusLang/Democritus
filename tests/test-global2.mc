@@ -1,6 +1,6 @@
 bool i;
 
-int main()
+function int main()
 {
   int i; /* Should hide the global i */
 

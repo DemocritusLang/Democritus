@@ -1,9 +1,9 @@
-int add(int a, int b)
+function int add(int a, int b)
 {
   return a + b;
 }
 
-int main()
+function int main()
 {
   int a;
   a = add(39, 3);

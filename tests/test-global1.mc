@@ -1,23 +1,23 @@
 int a;
 int b;
 
-void printa()
+function void printa()
 {
   print(a);
 }
 
-void printb()
+function void printb()
 {
   print(b);
 }
 
-void incab()
+function void incab()
 {
   a = a + 1;
   b = b + 1;
 }
 
-int main()
+function int main()
 {
   a = 42;
   b = 21;

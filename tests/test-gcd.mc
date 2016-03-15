@@ -1,4 +1,4 @@
-int gcd(int a, int b) {
+function int gcd(int a, int b) {
   for (a != b) {
     if (a > b) a = a - b;
     else b = b - a;
@@ -6,7 +6,7 @@ int gcd(int a, int b) {
   return a;
 }
 
-int main()
+function int main()
 {
   print(gcd(2,14));
   print(gcd(3,15));

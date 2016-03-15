@@ -1,6 +1,6 @@
-int foo() {}
+function int foo() {}
 
-int bar() {
+function int bar() {
   int a;
   void b; /* Error: illegal void local b */
   bool c;
@@ -8,7 +8,7 @@ int bar() {
   return 0;
 }
 
-int main()
+function int main()
 {
   return 0;
 }

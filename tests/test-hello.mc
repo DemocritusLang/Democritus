@@ -1,4 +1,4 @@
-int main()
+function int main()
 {
   print(42);
   print(71);

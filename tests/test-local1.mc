@@ -1,4 +1,4 @@
-void foo(bool i)
+function void foo(bool i)
 {
   int i; /* Should hide the formal i */
 
@@ -6,7 +6,7 @@ void foo(bool i)
   print(i + i);
 }
 
-int main()
+function int main()
 {
   foo(true);
   return 0;

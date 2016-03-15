@@ -1,4 +1,4 @@
-int main()
+function int main()
 {
   printb(true);
   printb(false);

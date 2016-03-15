@@ -3,7 +3,7 @@ bool b;
 void a; /* global variables should not be void */
 
 
-int main()
+function int main()
 {
   return 0;
 }

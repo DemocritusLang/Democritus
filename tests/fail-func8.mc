@@ -1,12 +1,12 @@
-void foo(int a, bool b)
+function void foo(int a, bool b)
 {
 }
 
-void bar()
+function void bar()
 {
 }
 
-int main()
+function int main()
 {
   foo(42, true);
   foo(42, bar()); /* int and void, not int and bool */

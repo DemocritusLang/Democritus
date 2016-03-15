@@ -1,4 +1,4 @@
-int main()
+function int main()
 {
   if (true) {}
   if (false) {} else {}

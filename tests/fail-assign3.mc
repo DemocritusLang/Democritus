@@ -1,9 +1,9 @@
-void myvoid()
+function void myvoid()
 {
   return;
 }
 
-int main()
+function int main()
 {
   int i;
 

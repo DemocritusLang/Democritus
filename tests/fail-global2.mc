@@ -3,7 +3,7 @@ bool c;
 int a;
 int b; /* Duplicate global variable */
 
-int main()
+function int main()
 {
   return 0;
 }
