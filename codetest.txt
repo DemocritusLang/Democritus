@@ -1,0 +1,20 @@
+/* int gcd(atomic int* a, int b) { 
+	while (a != b) {
+		if (a > b) a = a % b;
+		else b = b - a; 
+	}
+	return a; 
+} */
+
+int main() {
+	atomic int a;
+	atomic int* b;
+	int c;
+	int d;
+	a = 1;
+	b = 2;
+	c = *a;
+	d = a * b;
+}
+
+

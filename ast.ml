@@ -2,16 +2,25 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or | Mod | LShift | RShift
 
-type uop = Neg | Not
+type uop = Neg | Not | Deref | Ref
 
-type typ = Int | Bool | Void
+type pretyp_modifier = Atomic
+type posttyp_modifier = Pointer
+type primitive_typ = Null | Int | Float | Char | Boolean | Void | StructType
+
+type typ = 
+    PrePostModType of pretyp_modifier * primitive_typ * posttyp_modifier
+  | PostModType of primitive_typ * posttyp_modifier
+  | PreModType of pretyp_modifier * primitive_typ
+  | PrimitiveType of primitive_typ
 
 type bind = typ * string
 
 type expr =
-    Literal of int
+    IntLiteral of int
+  | FloatLiteral of float
   | BoolLit of bool
   | Id of string
   | Binop of expr * op * expr
@@ -36,7 +45,12 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type struct_decl = {
+    sname : string;
+    formals: bind list;
+}
+
+type program = bind list * func_decl list * struct_decl list
 
 (* Pretty-printing functions *)
 
@@ -53,13 +67,19 @@ let string_of_op = function
   | Geq -> ">="
   | And -> "&&"
   | Or -> "||"
+  | Mod -> "%"
+  | RShift -> ">>"
+  | LShift -> "<<"
 
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
+  | Deref -> "*"
+  | Ref -> "&"
 
 let rec string_of_expr = function
-    Literal(l) -> string_of_int l
+    IntLiteral(l) -> string_of_int l
+  | FloatLiteral(l) -> string_of_float l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
@@ -84,10 +104,27 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_typ = function
+let string_of_premodifier = function
+    Atomic -> "atomic"
+
+let string_of_postmodifier = function
+    Pointer -> "*"
+
+let string_of_primitivetyp = function
     Int -> "int"
-  | Bool -> "bool"
+  | Float -> "float"
+  | Char -> "char"
+  | Boolean -> "boolean"
   | Void -> "void"
+  | Null -> "null"
+  | StructType -> "struct"
+
+let string_of_typ = function
+  | PrePostModType (m1, t, m2) -> string_of_premodifier m1 ^ " " ^ 
+    string_of_primitivetyp t ^ " " ^ string_of_postmodifier m2
+  | PostModType(t, m) -> string_of_primitivetyp t ^ " " ^ string_of_postmodifier m
+  | PreModType(m, t) -> string_of_premodifier m ^ " " ^ string_of_primitivetyp t
+  | PrimitiveType(s) -> string_of_primitivetyp s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
