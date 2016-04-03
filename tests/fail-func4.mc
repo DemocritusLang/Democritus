@@ -2,7 +2,7 @@ function int foo() {}
 
 function void bar() {}
 
-function int print() {} /* Should not be able to define print */
+function int print_int() {} /* Should not be able to define print_int */
 
 function void baz() {}
 

@@ -1,5 +1,5 @@
 function int main()
 {
-  print(1 + 2 * 3 + 4);
+  print_int(1 + 2 * 3 + 4);
   return 0;
 }

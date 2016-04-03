@@ -8,8 +8,8 @@ function int gcd(int a, int b) {
 
 function int main()
 {
-  print(gcd(2,14));
-  print(gcd(3,15));
-  print(gcd(99,121));
+  print_int(gcd(2,14));
+  print_int(gcd(3,15));
+  print_int(gcd(99,121));
   return 0;
 }

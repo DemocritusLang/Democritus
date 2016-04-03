@@ -1,14 +1,14 @@
 int a;
 int b;
 
-function void printa()
+function void print_inta()
 {
-  print(a);
+  print_int(a);
 }
 
-function void printb()
+function void print_intb()
 {
-  print(b);
+  print_int(b);
 }
 
 function void incab()
@@ -21,10 +21,10 @@ function int main()
 {
   a = 42;
   b = 21;
-  printa();
-  printb();
+  print_inta();
+  print_intb();
   incab();
-  printa();
-  printb();
+  print_inta();
+  print_intb();
   return 0;
 }

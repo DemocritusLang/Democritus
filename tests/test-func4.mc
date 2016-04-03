@@ -9,6 +9,6 @@ function int main()
 {
   int d;
   d = add(52, 10);
-  print(d);
+  print_int(d);
   return 0;
 }
