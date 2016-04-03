@@ -9,6 +9,7 @@ open Ast
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN IF ELSE FOR INT BOOL VOID FUNCTION
+%token <string> STRING
 %token <int> LITERAL
 %token <string> ID
 %token EOF
@@ -57,6 +58,7 @@ typ:
     INT { Int }
   | BOOL { Bool }
   | VOID { Void }
+  | STRING { MyString }
 
 vdecl_list:
     /* nothing */    { [] }

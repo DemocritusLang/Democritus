@@ -86,6 +86,7 @@ let translate (globals, functions) =
     let rec expr builder = function
 	A.Literal i -> L.const_int i32_t i
       | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
+      | A.MyString str -> L.const_stringz context str
       | A.Noexpr -> L.const_int i32_t 0
       | A.Id s -> L.build_load (lookup s) s builder
       | A.Binop (e1, op, e2) ->
