@@ -24,15 +24,15 @@ let translate (globals, functions) =
   and i32_t  = L.i32_type  context
   and i8_t   = L.i8_type   context
   and i1_t   = L.i1_type   context
-  and void_t = L.void_type context in
+  and void_t = L.void_type context
+  and ptr_t  = L.pointer_type (L.i8_type (context))  in
 
   let ltype_of_typ = function
       A.Int -> i32_t
     | A.Bool -> i1_t
     | A.Void -> void_t
-    | A.MyString -> L.const_stringz context str in
-
-  (* Declare each global variable; remember its value in a map *)
+    | A.MyString -> ptr_t in
+      (* Declare each global variable; remember its value in a map *)
   let global_vars =
     let global_var m (t, n) =
       let init = L.const_int (ltype_of_typ t) 0
@@ -86,6 +86,7 @@ let translate (globals, functions) =
     (* Construct code for an expression; return its value *)
     let rec expr builder = function
 	A.Literal i -> L.const_int i32_t i
+      | A.MyStringLit str -> L.const_stringz context str
       | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | A.Noexpr -> L.const_int i32_t 0
       | A.Id s -> L.build_load (lookup s) s builder
