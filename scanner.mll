@@ -34,6 +34,7 @@ rule token = parse
 | "bool"   { BOOL }
 | "void"   { VOID }
 | "true"   { TRUE }
+| "string" { STRTYPE }
 | "false"  { FALSE }
 | "function" { FUNCTION }
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }

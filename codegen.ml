@@ -86,7 +86,8 @@ let translate (globals, functions) =
     (* Construct code for an expression; return its value *)
     let rec expr builder = function
 	A.Literal i -> L.const_int i32_t i
-      | A.MyStringLit str -> L.const_stringz context str
+(*      | A.MyStringLit str -> L.const_stringz context str *)
+      | A.MyStringLit str -> L.build_global_stringptr str "tmp" builder
       | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | A.Noexpr -> L.const_int i32_t 0
       | A.Id s -> L.build_load (lookup s) s builder
@@ -117,7 +118,7 @@ let translate (globals, functions) =
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
-      | A.Call ("printf", [e])->
+      | A.Call ("print", [e])->
                 L.build_call printf_func [| (expr builder e) |] "printf" builder
       | A.Call (f, act) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
