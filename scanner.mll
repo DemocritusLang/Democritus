@@ -31,11 +31,13 @@ rule token = parse
 | "for"    { FOR }
 | "return" { RETURN }
 | "int"    { INT }
+| "string" { STRING }
 | "bool"   { BOOL }
 | "void"   { VOID }
 | "true"   { TRUE }
 | "false"  { FALSE }
 | "function" { FUNCTION }
+| ['"']_*['"'] as lxm { STRINGLITERAL(lxm) }
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | eof { EOF }
