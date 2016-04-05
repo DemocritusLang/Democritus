@@ -1,5 +1,5 @@
 function int main()
 {
-  print(39 + 3);
+  print_int(39 + 3);
   return 0;
 }

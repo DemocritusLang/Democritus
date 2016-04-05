@@ -1,6 +1,6 @@
 function int main()
 {
-  if (false) print(42);
-  print(17);
+  if (false) print_int(42);
+  print_int(17);
   return 0;
 }

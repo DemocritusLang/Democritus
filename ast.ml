@@ -6,13 +6,14 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Void
+type typ = Int | Bool | Void | MyString
 
 type bind = typ * string
 
 type expr =
     Literal of int
   | BoolLit of bool
+  | MyStringLit of string
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
@@ -62,6 +63,7 @@ let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
+  | MyStringLit(s) -> s
   | Id(s) -> s
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
@@ -88,6 +90,7 @@ let string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Void -> "void"
+  | MyString -> "string"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
@@ -102,3 +105,4 @@ let string_of_fdecl fdecl =
 let string_of_program (vars, funcs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs)
+
