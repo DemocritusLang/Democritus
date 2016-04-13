@@ -8,7 +8,7 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION
+%token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION
 %token <string> STRING
 %token <int> LITERAL
 %token <string> ID
@@ -65,7 +65,7 @@ vdecl_list:
   | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
-   ID typ SEMI { ($2, $1) }
+   LET ID typ SEMI { ($3, $2) }
 
 stmt_list:
     /* nothing */  { [] }
