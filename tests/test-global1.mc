@@ -1,5 +1,5 @@
-a int;
-b int;
+let a int;
+let b int;
 
 function print_inta() void
 {

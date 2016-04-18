@@ -1,6 +1,6 @@
 function int main()
 {
-  string x;
+  let string x;
   x = "hello world\n"; 
   print(x);
   return 0;

@@ -7,7 +7,7 @@ function fun(x int, y int) int
 
 function main() int
 {
-  i int;
+  let i int;
   i = 1;
 
   fun(i = 2, i = i+1);

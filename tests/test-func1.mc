@@ -5,7 +5,7 @@ function add(a int, b int) int
 
 function main() int
 {
-  a int;
+  let a int;
   a = add(39, 3);
   print_int(a);
   return 0;

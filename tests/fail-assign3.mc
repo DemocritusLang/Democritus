@@ -5,7 +5,7 @@ function myvoid() void
 
 function main() int
 {
-  i int;
+  let i int;
 
   i = myvoid(); /* Fail: assigning a to void an integer */
 }

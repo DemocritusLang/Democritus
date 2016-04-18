@@ -5,7 +5,7 @@ function foo(a int) int
 
 function main() int
 {
-  a int;
+  let a int;
   a = 42;
   a = a + 5;
   print_int(a);

@@ -1,7 +1,7 @@
-b int;
-c bool;
-a int;
-b int; /* Duplicate global variable */
+let b int;
+let c bool;
+let a int;
+let b int; /* Duplicate global variable */
 
 function main() int
 {

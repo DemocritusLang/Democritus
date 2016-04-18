@@ -1,10 +1,10 @@
-a int;
-b bool;
+let a int;
+let b bool;
 
 function foo(c int, d bool) void
 {
-  d int;
-  e bool;
+  let d int;
+  let e bool;
   b + a; /* Error: bool + int */
 }
 

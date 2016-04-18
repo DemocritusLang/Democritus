@@ -1,7 +1,7 @@
 function main() int
 {
-  i int;
-  b bool;
+  let i int;
+  let b bool;
 
   i = 42;
   i = 10;

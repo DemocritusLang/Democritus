@@ -1,9 +1,9 @@
 function foo() int {}
 
 function bar() int {
-  a int;
-  b void; /* Error: illegal local void b */
-  c bool;
+  let a int;
+  let b void; /* Error: illegal local void b */
+  let c bool;
 
   return 0;
 }
