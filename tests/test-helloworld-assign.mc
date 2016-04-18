@@ -1,4 +1,4 @@
-function int main()
+function main() int
 {
   let x string;
   x = "hello world\n"; 
