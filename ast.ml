@@ -6,7 +6,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Void | MyString
+type typ = Int | Bool | Void | MyString | StructType
 
 type bind = typ * string
 
@@ -37,7 +37,13 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type struct_decl = {
+    sname: string;
+    formals: bind list;
+
+}
+
+type program = bind list * func_decl list * struct_decl list
 
 (* Pretty-printing functions *)
 
@@ -91,6 +97,7 @@ let string_of_typ = function
   | Bool -> "bool"
   | Void -> "void"
   | MyString -> "string"
+  | StructType -> "struct"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
