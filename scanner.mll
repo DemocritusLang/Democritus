@@ -15,6 +15,7 @@ rule token = parse
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
+| '.'      { DOT }
 | '/'      { DIVIDE }
 | '='      { ASSIGN }
 | "=="     { EQ }
