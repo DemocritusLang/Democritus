@@ -1,12 +1,12 @@
-function int foo() {}
+function foo() int {}
 
-function int bar() {}
+function bar() int {}
 
-function int baz() {}
+function baz() int {}
 
-function void bar() {} /* Error: duplicate function bar */
+function bar() void {} /* Error: duplicate function bar */
 
-function int main()
+function main() int
 {
   return 0;
 }

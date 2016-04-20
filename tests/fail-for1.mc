@@ -1,6 +1,6 @@
-function int main()
+function main() int
 {
-  int i;
+  let i int;
   for ( ; true ; ) {} /* OK: Forever */
 
   for (i = 0 ; i < 10 ; i = i + 1) {

@@ -1,10 +1,10 @@
-function int fib(int x)
+function fib(x int) int
 {
   if (x < 2) return 1;
   return fib(x-1) + fib(x-2);
 }
 
-function int main()
+function main() int
 {
   print_int(fib(0));
   print_int(fib(1));

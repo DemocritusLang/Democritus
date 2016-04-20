@@ -1,13 +1,13 @@
 /* Bug noticed by Pin-Chin Huang */
 
-function int fun(int x, int y)
+function fun(x int, y int) int
 {
   return 0;
 }
 
-function int main()
+function main() int
 {
-  int i;
+  let i int;
   i = 1;
 
   fun(i = 2, i = i+1);

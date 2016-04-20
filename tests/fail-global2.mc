@@ -1,9 +1,9 @@
-int b;
-bool c;
-int a;
-int b; /* Duplicate global variable */
+let b int;
+let c bool;
+let a int;
+let b int; /* Duplicate global variable */
 
-function int main()
+function main() int
 {
   return 0;
 }

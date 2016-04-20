@@ -1,8 +1,8 @@
-function int foo(int a, bool b, int c) { }
+function foo(a int, b bool, c int) int { }
 
-function void bar(int a, bool b, int a) {} /* Error: duplicate formal a in bar */
+function bar(a int, b bool, a int) void {} /* Error: duplicate formal a in bar */
 
-function int main()
+function main() int
 {
   return 0;
 }

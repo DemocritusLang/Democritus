@@ -1,11 +1,11 @@
-function int main()
+function main() int
 {
-  int i;
-  bool b;
+  let i int;
+  let b bool;
 
   i = 42;
   i = 10;
   b = true;
   b = false;
-  i = false; /* Fail: assigning a bool to an integer */
+  i = false; /* Fail: assigning a to bool an integer */
 }

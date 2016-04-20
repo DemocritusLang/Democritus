@@ -1,11 +1,11 @@
-function int foo(int a)
+function foo(a int) int
 {
   return a;
 }
 
-function int main()
+function main() int
 {
-  int a;
+  let a int;
   a = 42;
   a = a + 5;
   print_int(a);

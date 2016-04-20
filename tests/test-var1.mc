@@ -1,6 +1,6 @@
-function int main()
+function main() int
 {
-  int a;
+  let a int;
   a = 42;
   print_int(a);
   return 0;

@@ -1,11 +1,11 @@
-function void myvoid()
+function myvoid() void
 {
   return;
 }
 
-function int main()
+function main() int
 {
-  int i;
+  let i int;
 
-  i = myvoid(); /* Fail: assigning a void to an integer */
+  i = myvoid(); /* Fail: assigning a to void an integer */
 }

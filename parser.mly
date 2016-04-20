@@ -8,7 +8,7 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION
+%token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION
 %token <string> STRING
 %token <int> LITERAL
 %token <string> ID
@@ -39,10 +39,10 @@ decls:
  | decls fdecl { fst $1, ($2 :: snd $1) }
 
 fdecl:
-   FUNCTION typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-     { { typ = $2;
-	 fname = $3;
-	 formals = $5;
+   FUNCTION ID LPAREN formals_opt RPAREN typ LBRACE vdecl_list stmt_list RBRACE
+     { { typ = $6;
+	 fname = $2;
+	 formals = $4;
 	 locals = List.rev $8;
 	 body = List.rev $9 } }
 
@@ -51,8 +51,8 @@ formals_opt:
   | formal_list   { List.rev $1 }
 
 formal_list:
-    typ ID                   { [($1,$2)] }
-  | formal_list COMMA typ ID { ($3,$4) :: $1 }
+    ID typ                   { [($2,$1)] }
+  | formal_list COMMA ID typ { ($4,$3) :: $1 }
 
 typ:
     INT { Int }
@@ -65,7 +65,7 @@ vdecl_list:
   | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
-   typ ID SEMI { ($1, $2) }
+   LET ID typ SEMI { ($3, $2) }
 
 stmt_list:
     /* nothing */  { [] }

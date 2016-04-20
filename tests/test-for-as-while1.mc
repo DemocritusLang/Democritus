@@ -1,6 +1,6 @@
-function int main()
+function main() int
 {
-  int i;
+  let i int;
   i = 5;
   for (i > 0) {
     print_int(i);

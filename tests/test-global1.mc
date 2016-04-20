@@ -1,23 +1,23 @@
-int a;
-int b;
+let a int;
+let b int;
 
-function void print_inta()
+function print_inta() void
 {
   print_int(a);
 }
 
-function void print_intb()
+function print_intb() void
 {
   print_int(b);
 }
 
-function void incab()
+function incab() void
 {
   a = a + 1;
   b = b + 1;
 }
 
-function int main()
+function main() int
 {
   a = 42;
   b = 21;

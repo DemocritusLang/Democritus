@@ -1,14 +1,14 @@
-int a;
-bool b;
+let a int;
+let b bool;
 
-function void foo(int c, bool d)
+function foo(c int, d bool) void
 {
-  int d;
-  bool e;
+  let d int;
+  let e bool;
   b + a; /* Error: bool + int */
 }
 
-function int main()
+function main() int
 {
   return 0;
 }

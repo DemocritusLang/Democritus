@@ -1,10 +1,10 @@
-function void foo()
+function foo() void
 {
   if (true) return 42; /* Should return void */
   else return;
 }
 
-function int main()
+function main() int
 {
   return 42;
 }

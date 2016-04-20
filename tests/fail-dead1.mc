@@ -1,6 +1,6 @@
-function int main()
+function main() int
 {
-  int i;  
+  let i int;
 
   i = 15;
   return i;

@@ -1,4 +1,4 @@
-function int main()
+function main() int
 {
   if (true) {
     foo; /* Error: undeclared variable */

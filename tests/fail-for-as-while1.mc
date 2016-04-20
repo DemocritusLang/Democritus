@@ -1,6 +1,6 @@
-function int main()
+function main() int
 {
-  int i;
+  let i int;
 
   for (true) {
     i = i + 1;

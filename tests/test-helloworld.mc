@@ -1,4 +1,4 @@
-function int main()
+function main() int
 {
   print("hello world\n");
   return 0;
