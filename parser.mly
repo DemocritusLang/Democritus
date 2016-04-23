@@ -65,7 +65,7 @@ typ:
   | BOOL { Bool }
   | VOID { Void }
   | STRTYPE { MyString }
-  | STRUCT ID { StructType }
+  | STRUCT ID { StructType ($2) }
 
 vdecl_list:
     /* nothing */    { [] }
