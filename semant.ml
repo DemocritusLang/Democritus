@@ -113,6 +113,9 @@ let check (globals, functions, structs) =
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
+      | Dotop(e1, field) as ex -> let lt = expr e1 and rt = field in
+        check_access (expr e1)(field)
+              (Failure ("illegal access " ^ field))
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
 	   Neg when t = Int -> Int

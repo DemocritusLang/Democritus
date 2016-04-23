@@ -16,6 +16,7 @@ type expr =
   | MyStringLit of string
   | Id of string
   | Binop of expr * op * expr
+  | Dotop of expr * string 
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
