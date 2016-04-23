@@ -33,13 +33,15 @@ let check (globals, functions, structs) =
      if lvaluet == rvaluet then lvaluet else raise err
   in
 
-  let match_struct_to_accessor a b err
-
+  let match_struct_to_accessor a b err = 
+    let s1 = List.find (fun s-> s.sname=a) structs in
+    let formals = s1.formals in
+    List.find(fun f->snd(f)=b) formals
   in
 
   let check_access lvaluet rvalues err = 
      match lvaluet with
-	StructType s -> match_sruct_to_accessor s rvalues "some error"
+       StructType s -> match_struct_to_accessor s rvalues Failure("some error")
        | _ -> raise err
 	
   in
