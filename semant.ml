@@ -34,14 +34,13 @@ let check (globals, functions, structs) =
   in
 
   let match_struct_to_accessor a b err = 
-    let s1 = List.find (fun s-> s.sname=a) structs in
-    let formals = s1.formals in
-    List.find(fun f->snd(f)=b) formals
+    let s1 = List.find (fun s-> s.sname==a) structs in
+    List.find (fun f->snd(f)==b) s1.formals
   in
 
   let check_access lvaluet rvalues err = 
      match lvaluet with
-       StructType s -> match_struct_to_accessor s rvalues Failure("some error")
+       StructType s -> match_struct_to_accessor s rvalues err; lvaluet
        | _ -> raise err
 	
   in
@@ -127,7 +126,7 @@ let check (globals, functions, structs) =
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
       | Dotop(e1, field) as ex -> let lt = expr e1 and rt = field in
-        check_access (lt)(field)
+        check_access (lt) (field)
               (Failure ("illegal access " ^ field))
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
