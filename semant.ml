@@ -32,7 +32,18 @@ let check (globals, functions, structs) =
   let check_assign lvaluet rvaluet err =
      if lvaluet == rvaluet then lvaluet else raise err
   in
-   
+
+  let match_struct_to_accessor a b err
+
+  in
+
+  let check_access lvaluet rvalues err = 
+     match lvaluet with
+	StructType s -> match_sruct_to_accessor s rvalues "some error"
+       | _ -> raise err
+	
+  in
+
   (**** Checking Global Variables ****)
 
   List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
@@ -114,7 +125,7 @@ let check (globals, functions, structs) =
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
       | Dotop(e1, field) as ex -> let lt = expr e1 and rt = field in
-        check_access (expr e1)(field)
+        check_access (lt)(field)
               (Failure ("illegal access " ^ field))
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
