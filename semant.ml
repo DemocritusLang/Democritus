@@ -34,8 +34,8 @@ let check (globals, functions, structs) =
   in
 
   let match_struct_to_accessor a b err = 
-    let s1 = List.find (fun s-> s.sname==a) structs in
-    List.find (fun f->snd(f)==b) s1.formals
+    let s1 = List.find (fun s-> s.sname=a) structs in
+    List.find (fun s-> snd(s)=b) s1.formals
   in
 
   let check_access lvaluet rvalues err = 
