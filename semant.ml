@@ -35,13 +35,14 @@ let check (globals, functions, structs) =
 
   let match_struct_to_accessor a b err = 
     let s1 = List.find (fun s-> s.sname=a) structs in
-    List.find (fun s-> snd(s)=b) s1.formals
+    try fst( List.find (fun s-> snd(s)=b) s1.formals) with
+	Not_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
   in
 
   let check_access lvaluet rvalues err = 
      match lvaluet with
-       StructType s -> match_struct_to_accessor s rvalues err; lvaluet
-       | _ -> raise err
+       StructType s -> match_struct_to_accessor s rvalues err
+       | _ -> raise (Failure(string_of_typ lvaluet ^ " is not a struct"))
 	
   in
 

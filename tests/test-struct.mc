@@ -11,8 +11,9 @@ struct Circle
 
 function int main()
 {
+  bool b;
   struct Circle x;
-  x.radius;
+  b = x.radius;
   print("hello world\n");
   return 0;
 }
