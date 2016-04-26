@@ -33,15 +33,15 @@ let check (globals, functions, structs) =
      if lvaluet == rvaluet then lvaluet else raise err
   in
 
-  let match_struct_to_accessor a b err = 
+  let match_struct_to_accessor a b = 
     let s1 = List.find (fun s-> s.sname=a) structs in
     try fst( List.find (fun s-> snd(s)=b) s1.formals) with
 	Not_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
   in
 
-  let check_access lvaluet rvalues err = 
+  let check_access lvaluet rvalues = 
      match lvaluet with
-       StructType s -> match_struct_to_accessor s rvalues err
+       StructType s -> match_struct_to_accessor s rvalues
        | _ -> raise (Failure(string_of_typ lvaluet ^ " is not a struct"))
 	
   in
@@ -126,9 +126,8 @@ let check (globals, functions, structs) =
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
-      | Dotop(e1, field) as ex -> let lt = expr e1 and rt = field in
-        check_access (lt) (field)
-              (Failure ("illegal access " ^ field))
+      | Dotop(e1, field) -> let lt = expr e1 in
+       	 check_access (lt) (field)
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
 	   Neg when t = Int -> Int
