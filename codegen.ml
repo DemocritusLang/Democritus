@@ -27,17 +27,30 @@ let translate (globals, functions, structs) =
   and void_t = L.void_type context
   and ptr_t  = L.pointer_type (L.i8_type (context))  in
 
-  let ltype_of_typ = function
+  let rec  ltype_of_typ = function
       A.Int -> i32_t
     | A.Bool -> i1_t
     | A.Void -> void_t
+    | A.StructType s ->
+	 (let struct_decls =
+   	   let struct_decl m sdecl =
+             let struct_name = sdecl.A.sname
+	 	 and struct_field_list = Array.of_list
+			(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
+      	     let stype = L.struct_type context struct_field_list in
+     	   StringMap.add struct_name stype m in
+   	 List.fold_left struct_decl StringMap.empty structs in
+      StringMap.find s struct_decls)
     | A.MyString -> ptr_t in
       (* Declare each global variable; remember its value in a map *)
+
   let global_vars =
     let global_var m (t, n) =
       let init = L.const_int (ltype_of_typ t) 0
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
+
+
 
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
