@@ -32,25 +32,42 @@ let translate (globals, functions, structs) =
     | A.Bool -> i1_t
     | A.Void -> void_t
     | A.StructType s ->
-	 (let struct_decls =
+         let struct_decls =
    	   let struct_decl m sdecl =
              let struct_name = sdecl.A.sname
-	 	 and struct_field_list = Array.of_list
-			(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
+	 	 and struct_field_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
       	     let stype = L.struct_type context struct_field_list in
      	   StringMap.add struct_name stype m in
    	 List.fold_left struct_decl StringMap.empty structs in
-      StringMap.find s struct_decls)
+      StringMap.find s struct_decls
     | A.MyString -> ptr_t in
-      (* Declare each global variable; remember its value in a map *)
 
+  (*struct_field_index is a map where key is struct name and value is another map*)
+  (*in the second map, the key is the field name and the value is the index number*)
+  let struct_field_index_list =
+	let handle_list m individual_struct = 
+		(*list of all field names for that struct*) 
+		let struct_field_name_list = List.map snd individual_struct.A.formals in
+		let increment n = n + 1 in
+		let add_field_and_index (m, i) field_name =
+			(*add each field and index to the second map*)
+			(StringMap.add field_name (increment i) m, increment i) in
+		(*struct_field_map is the second map, with key = field name and value = index*)
+		let struct_field_map = 
+			List.fold_left add_field_and_index (StringMap.empty, -1) struct_field_name_list
+		in
+		(*add field map (the first part of the tuple) to the main map*)
+		StringMap.add individual_struct.sname (fst struct_field_map) m	
+	in
+	List.fold_left handle_list StringMap.empty structs	
+  in
+
+  (* Declare each global variable; remember its value in a map *)
   let global_vars =
     let global_var m (t, n) =
       let init = L.const_int (ltype_of_typ t) 0
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
-
-
 
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -121,6 +138,7 @@ let translate (globals, functions, structs) =
 	  | A.Greater -> L.build_icmp L.Icmp.Sgt
 	  | A.Geq     -> L.build_icmp L.Icmp.Sge
 	  ) e1' e2' "tmp" builder
+    (*  | A.Dotop(e1, field) -> L.build_struct_gep *)
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
 	  (match op with
