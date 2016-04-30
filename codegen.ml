@@ -147,7 +147,7 @@ let translate (globals, functions, structs) =
                 with Not_found -> raise (Failure("Unable to find" ^ s)))
                 in
             (try match etype with
-              A.StructType t-> L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder
+              A.StructType t-> L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder
               | _ -> raise (Failure("No structype."))
               with Not_found -> raise (Failure("unable to find" ^s))
             )

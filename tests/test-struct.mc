@@ -15,7 +15,7 @@ function int main()
   int y;
   struct Circle x;
   x.radius=4;
-  y = x.radius; 
+  y = x.radius + 6; 
   print_int(y);
   print("hello world\n");
   return 0;
