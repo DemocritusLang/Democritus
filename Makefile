@@ -5,8 +5,10 @@
 
 # Easiest way to build: using ocamlbuild, which in turn uses ocamlfind
 
+
 microc.native :
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	clang -c -pthread -emit-llvm bindings.c
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis,llvm.bitwriter,llvm.bitreader,llvm.linker -cflags -w,+a-4 \
 		microc.native
 
 # "make clean" removes all generated files
@@ -15,7 +17,7 @@ microc.native :
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff microc scanner.ml parser.ml parser.mli
-	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.ll *.err
+	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.ll *.err *.bc
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 

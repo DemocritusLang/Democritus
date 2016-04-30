@@ -1,35 +1,15 @@
-(* MicroC by Stephen Edwards Columbia University *)
-(* Code generation: translate takes a semantically checked AST and
-produces LLVM IR
-
-LLVM tutorial: Make sure to read the OCaml version of the tutorial
-
-http://llvm.org/docs/tutorial/index.html
-
-Detailed documentation on the OCaml LLVM library:
-
-http://llvm.moe/
-http://llvm.moe/ocaml/
-
-*)
-
 module L = Llvm
 module A = Ast
-
 module StringMap = Map.Make(String)
 
 let translate (globals, functions, structs) =
   let context = L.global_context () in
   let the_module = L.create_module context "MicroC"
   and i32_t  = L.i32_type  context
-  and i8_t   = L.i8_type   context
+(*  and i8_t   = L.i8_type   context *)
   and i1_t   = L.i1_type   context
   and void_t = L.void_type context
-  and ptr_t  = L.pointer_type (L.i8_type (context))  in
-
-
-
-	
+  and ptr_t  = L.pointer_type (L.i8_type (context)) in
 (*	1. Define map at the beginning
 	2. Write get_type function that takes A.type -> ltype
 		a. In the case of struct, lookup in map
@@ -37,7 +17,6 @@ let translate (globals, functions, structs) =
 	4. Add loop to series of calls at end of translate
 *)
 	
-
 	let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 50 in
 
         let add_empty_named_struct_types sdecl =
@@ -81,8 +60,13 @@ let translate (globals, functions, structs) =
 	in
 	List.fold_left handle_list StringMap.empty structs	
   in
-
-  (* Declare each global variable; remember its value in a map *)
+  let ltype_of_typ = function
+      A.Int -> i32_t
+    | A.Bool -> i1_t
+    | A.Void -> void_t
+    | A.MyString -> ptr_t
+    | A.Voidstar -> ptr_t in
+      (* Declare each global variable; remember its value in a map *)
   let global_vars =
     let global_var m (t, n) =
       let init = L.const_int (ltype_of_typ t) 0
@@ -90,8 +74,17 @@ let translate (globals, functions, structs) =
     List.fold_left global_var StringMap.empty globals in
 
   (* Declare printf(), which the print built-in function will call *)
-  let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
+
+  let default_t = L.function_type ptr_t [|ptr_t|] in
+  let default_func = L.declare_function "default_start_routine" default_t the_module in
+
+  let param_ty = L.function_type ptr_t [| ptr_t |] in (* a function that returns void_star and takes as argument void_star *)
+let param_ptr = L.pointer_type param_ty in  
+let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
+  let thread_func = L.declare_function "init_thread" thread_t the_module in
+
 
   (* Define each function (arguments and return type) so we can call it *)
   let function_decls =
@@ -197,9 +190,30 @@ let translate (globals, functions, structs) =
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
-      | A.Call ("print", [e])->
-                L.build_call printf_func [| (expr builder e) |] "printf" builder
-      | A.Call (f, act) ->
+     | A.Call ("print", [e])->
+        L.build_call printf_func [| (expr builder e) |] "printf" builder
+     | A.Call ("thread", e)->
+(*	L.build_call printf_func [| int_format_str ; L.const_int i32_t 8 |] "printf" builder	*)
+	let evald_expr_list = List.map (expr builder)e in
+(*	let target_func_strptr = List.hd evald_expr_list in  (* jsut get the string by doing List.hd on e *)
+	let target_func_str = L.string_of_llvalue target_func_strptr in *)
+	let get_string v = match v with
+		| A.MyStringLit i -> i 
+		| _ -> "" in
+	let target_func_str = get_string (List.hd e) in
+	(*let target_func_str = Option.default "" Some(target_func_str_opt) in *)
+	let target_func_llvalue_opt = L.lookup_function target_func_str the_module in
+	let deopt x = match x with
+		|Some f -> f
+		| None -> default_func in
+	let target_func_llvalue = deopt target_func_llvalue_opt in
+	let remaining_list = List.tl evald_expr_list in
+	let new_arg_list = target_func_llvalue :: remaining_list in
+	let new_arg_arr = Array.of_list new_arg_list in
+		L.build_call thread_func
+		new_arg_arr	
+                "" builder
+     | A.Call (f, act) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
 	 let result = (match fdecl.A.typ with A.Void -> ""
@@ -265,5 +279,12 @@ let translate (globals, functions, structs) =
       | t -> L.build_ret (L.const_int (ltype_of_typ t) 0))
   in
 
+
   List.iter build_function_body functions;
+
+  let llmem = Llvm.MemoryBuffer.of_file "bindings.bc" in
+  let llm = Llvm_bitreader.parse_bitcode context llmem in
+  ignore(Llvm_linker.link_modules the_module llm Llvm_linker.Mode.PreserveSource);
+
   the_module
+
