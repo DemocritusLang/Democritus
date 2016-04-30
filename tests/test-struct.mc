@@ -12,8 +12,11 @@ struct Circle
 function int main()
 {
   bool b;
+  int y;
   struct Circle x;
-  x.radius = 4;
+  x.radius=4;
+  y = x.radius; 
+  print_int(y);
   print("hello world\n");
   return 0;
 }

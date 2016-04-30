@@ -139,12 +139,39 @@ let translate (globals, functions, structs) =
 	  | A.Greater -> L.build_icmp L.Icmp.Sgt
 	  | A.Geq     -> L.build_icmp L.Icmp.Sge
 	  ) e1' e2' "tmp" builder
-    (*  | A.Dotop(e1, field) -> L.build_struct_gep *)
+    | A.Dotop(e1, field) -> let e' = expr builder e1 in
+      (match e1 with
+          A.Id s -> let etype = fst( 
+                try
+                    List.find (fun t->snd(t)=s) fdecl.A.locals
+                with Not_found -> raise (Failure("Unable to find" ^ s)))
+                in
+            (try match etype with
+              A.StructType t-> L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder
+              | _ -> raise (Failure("No structype."))
+              with Not_found -> raise (Failure("unable to find" ^s))
+            )
+        | _ -> raise (Failure("Not a struct."))
+      )
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
 	  (match op with
 	    A.Neg     -> L.build_neg
           | A.Not     -> L.build_not) e' "tmp" builder
+      | A.SAssign(e1, field, e2) -> let e' = expr builder e2 in
+                      let e'' = expr builder e1 in
+                      (match e1 with
+                        A.Id s -> let etype = fst(
+                        try 
+                          List.find (fun t -> snd(t) = s) fdecl.A.locals
+                        with Not_found -> raise (Failure("unable to find " ^ s))) in
+                         (match etype with
+                          A.StructType t -> try ignore ((L.build_store e' (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder)) builder); e'
+                          with Not_found -> raise (Failure("unable to find "^ t))
+                          | _ -> raise (Failure("StructType not found.")))
+                        |_ -> raise (Failure("Structype not foundd."))
+                      )
+
       | A.Assign (s, e) -> let e' = expr builder e in
 	                   ignore (L.build_store e' (lookup s) builder); e'
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->

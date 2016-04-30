@@ -34,7 +34,8 @@ let check (globals, functions, structs) =
   in
 
   let match_struct_to_accessor a b = 
-    let s1 = List.find (fun s-> s.sname=a) structs in
+    let  s1 = try List.find (fun s-> s.sname=a) structs 
+      with Not_found -> raise (Failure("Struct of name " ^ a ^ "not found.")) in
     try fst( List.find (fun s-> snd(s)=b) s1.formals) with
 	Not_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
   in
@@ -140,6 +141,13 @@ let check (globals, functions, structs) =
         check_assign (lt) (rt)
                  (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
                            string_of_typ rt ^ " in " ^ string_of_expr e2))
+      (*| SAssign(s, field, e2) -> let lt = type_of_identifier s
+                                and rt = expr e2 in 
+                                  let ltype = check_access (lt) (field)
+                                in  
+                                  check_assign (ltype) (rt) (Failure ("illegal assignment " ^ string_of_typ ltype ^
+                                      " = " ^ string_of_typ rt ^ " in " ^ string_of_expr e2))*)
+
       | Assign(var, e) as ex -> let lt = type_of_identifier var
                                 and rt = expr e in
         check_assign (type_of_identifier var) (expr e)
