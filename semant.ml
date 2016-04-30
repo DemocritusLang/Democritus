@@ -48,23 +48,30 @@ let check (globals, functions) =
     (List.map (fun fd -> fd.fname) functions);
 
   (* Function declaration for a named function *)
-  let built_in_decls_temp =  StringMap.add "print"
-     { typ = Void; fname = "print"; formals = [(MyString, "x")];
-       locals = []; body = [] } 
-    
-       (StringMap.singleton "print_int"
-     { typ = Void; fname = "print_int"; formals = [(Int, "x")];
-       locals = []; body = [] })
-	
-   in
+  let built_in_decls_funcs = [
+      { typ = Void; fname = "print_int"; formals = [(Int, "x")];
+      locals = []; body = [] };
+      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
+      locals = []; body = [] } ]
 
-  let built_in_decls = StringMap.add "printb"
-     { typ = Void; fname = "printb"; formals = [(Bool, "x")];
-       locals = []; body = [] } built_in_decls_temp
   in
-     
+
+ let built_in_decls_names = [ "print_int"; "printb" ]
+
+  in
+
+  let built_in_decls = List.fold_right2 (StringMap.add)
+                        built_in_decls_names
+                        built_in_decls_funcs
+                        (StringMap.singleton "print"
+                                { typ = Void; fname = "print"; formals = [(MyString, "x")];
+                                locals = []; body = [] })
+
+  in
+
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
                          built_in_decls functions
+
   in
 
   let function_decl s = try StringMap.find s function_decls
