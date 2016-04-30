@@ -13,7 +13,7 @@ function int main()
 {
   bool b;
   struct Circle x;
-
+  x.radius = 4;
   print("hello world\n");
   return 0;
 }
