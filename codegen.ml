@@ -36,7 +36,8 @@ let translate (globals, functions, structs) =
    	   let struct_decl m sdecl =
              let struct_name = sdecl.A.sname
 	 	 and struct_field_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
-      	     let stype = L.struct_type context struct_field_list in
+      	     let stype = L.named_struct_type context struct_name in
+	     let dummyunittype = L.struct_set_body stype struct_field_list false in
      	   StringMap.add struct_name stype m in
    	 List.fold_left struct_decl StringMap.empty structs in
       StringMap.find s struct_decls
