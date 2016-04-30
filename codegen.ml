@@ -27,6 +27,45 @@ let translate (globals, functions, structs) =
   and void_t = L.void_type context
   and ptr_t  = L.pointer_type (L.i8_type (context))  in
 
+
+
+	
+(*	1. Define map at the beginning
+	2. Write get_type function that takes A.type -> ltype
+		a. In the case of struct, lookup in map
+	3. Define loop that goes over sdecls and adds them to map
+	4. Add loop to series of calls at end of translate
+*)
+	
+
+	let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 50 in
+
+        let add_empty_named_struct_types sdecl =
+		let struct_t = L.named_struct_type context sdecl.A.sname in
+		Hashtbl.add struct_types sdecl.A.sname struct_t
+	in
+	let generate_struct_types =
+		List.map add_empty_named_struct_types structs 
+	in
+	let find_struct_type sname =
+		Hashtbl.find struct_types sname
+	in
+
+	let ltype_of_typ = function
+		A.Int -> i32_t
+	| 	A.Bool -> i1_t
+ 	|	A.Void -> void_t
+	| 	A.StructType s ->  Hashtbl.find struct_types s
+	|	A.MyString -> ptr_t in 
+
+	let populate_struct_type sdecl = 
+		let struct_t = Hashtbl.find struct_types sdecl.A.sname in
+		let type_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
+		L.struct_set_body struct_t type_list true
+	in 
+	let whatever = List.map populate_struct_type structs in
+	
+(*
   let rec  ltype_of_typ = function
       A.Int -> i32_t
     | A.Bool -> i1_t
@@ -42,7 +81,7 @@ let translate (globals, functions, structs) =
    	 List.fold_left struct_decl StringMap.empty structs in
       StringMap.find s struct_decls
     | A.MyString -> ptr_t in
-
+*)
   (*struct_field_index is a map where key is struct name and value is another map*)
   (*in the second map, the key is the field name and the value is the index number*)
   let struct_field_index_list =

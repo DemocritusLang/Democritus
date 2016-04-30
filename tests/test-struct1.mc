@@ -7,6 +7,7 @@ struct Rectangle
 struct Circle
 {
   int radius;
+  struct Rectangle r;
 }
 
 function int main()
