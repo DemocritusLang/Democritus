@@ -2,8 +2,9 @@
 	(* Semantic checking for the MicroC compiler *)
 
 	open Ast
-
+      
 	module StringMap = Map.Make(String)
+	module StringSet = Set.Make(String)
 
 	(* Semantic checking of a program. Returns void if successful,
    throws an exception if something is wrong.
@@ -21,6 +22,31 @@ let check (globals, functions, structs) =
     in helper (List.sort compare list)
   in
 
+  (*Raise an exception if there is a recursive struct dependency*)
+  
+  let find_sdecl_from_sname struct_type_name =
+    try List.find (fun s-> s.sname= struct_type_name) structs 
+      with Not_found -> raise (Failure("Struct of name " ^ struct_type_name ^ "not found.")) 
+  in
+  let rec check_recursive_struct_helper sdecl seen_set =
+    let current_struct = sdecl.sname in
+
+    let check_if_repeat struct_type_name =
+      let found = StringSet.mem struct_type_name seen_set in
+      if found then raise (Failure ("recursive struct definition"))
+      else check_recursive_struct_helper (find_sdecl_from_sname struct_type_name)  (StringSet.add struct_type_name seen_set)
+    in
+    let is_struct_field = function
+      (StructType s, _) -> check_if_repeat s
+     | _ -> () 
+    in
+    List.iter (is_struct_field) sdecl.formals
+  in
+  let check_recursive_struct sdecl =
+     check_recursive_struct_helper sdecl StringSet.empty    
+  in
+  let check_recursive_structs = List.map check_recursive_struct structs
+  in
   (* Raise an exception if a given binding is to a void type *)
   let check_not_void exceptf = function
       (Void, n) -> raise (Failure (exceptf n))
