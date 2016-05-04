@@ -44,7 +44,7 @@ let check (globals, functions) =
   if List.mem "print" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function print may not be defined")) else ();
 
-  if List.mem "thread_init" (List.map (fun fd -> fd.fname) functions)
+  if List.mem "thread" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function thread may not be defined")) else ();
 
   report_duplicate (fun n -> "duplicate function " ^ n)
@@ -56,11 +56,11 @@ let check (globals, functions) =
       locals = []; body = [] };
       { typ = Void; fname = "printb"; formals = [(Bool, "x")];
       locals = []; body = [] }; 
-      { typ = Void; fname = "thread_init"; formals = []; locals = []; body = [] }]
+      { typ = Void; fname = "thread"; formals = []; locals = []; body = [] }]
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "thread_init"]
+ let built_in_decls_names = [ "print_int"; "printb"; "thread"]
 
   in
 

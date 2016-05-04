@@ -128,7 +128,7 @@ ignore (Llvm_linker.link_modules the_module llm) *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
-  let thread_t = L.function_type i32_t[| ptr_t; ptr_t|] in
+  let thread_t = L.function_type void_t[| ptr_t; ptr_t; i32_t|] in
   let thread_func = L.declare_function "thread" thread_t the_module in
 
 
