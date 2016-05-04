@@ -189,10 +189,10 @@ let translate (globals, functions, structs) =
                 in
             (try match etype with
               A.StructType t-> 
-			raise (Failure(L.string_of_lltype (L.type_of( (lookup s)))))
+		(*	raise (Failure(L.string_of_lltype (L.type_of (L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder))))
+*)
 
-
- (*L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder*)
+ 		L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder
               | _ -> raise (Failure("No structype."))
               with Not_found -> raise (Failure("unable to find" ^s))
             )
@@ -232,7 +232,7 @@ let translate (globals, functions, structs) =
 		(*	pointer_to_struct_field = *)
 			(*	L.build_struct_gep e1' index_number field builder*)
 						
-			raise (Failure(L.string_of_lltype e1'_lltype))
+			raise (Failure(L.string_of_lltype (L.type_of (L.const_ptrtoint e1' (L.type_of e1') ))))
 	 )
 
 (*		              in

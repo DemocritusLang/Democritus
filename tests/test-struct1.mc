@@ -8,7 +8,7 @@ struct Rectangle
 struct Circle
 {
   let radius int;
-  let r struct Rectangle;
+  let cool bool;
   let color struct Color;
 }
 
@@ -21,9 +21,12 @@ function main() int
 {
   let b bool;
   let x struct Circle;
-  let c struct Color;
-  x.color = c;
-  x.color.red = true; 
+  x.cool=true;
+  b = x.cool; 
+  
+  x.color.red = true;
+/*  x.color.red = true;
+*/
   print("hello world\n");
   return 0;
 }
