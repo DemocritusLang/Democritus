@@ -15,6 +15,7 @@ rule token = parse
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
+| '.'      { DOT }
 | '/'      { DIVIDE }
 | '='      { ASSIGN }
 | "=="     { EQ }
@@ -35,6 +36,7 @@ rule token = parse
 | "void"   { VOID }
 | "true"   { TRUE }
 | "string" { STRTYPE }
+| "struct" { STRUCT }
 | "false"  { FALSE }
 | "function" { FUNCTION }
 | "let"      { LET }

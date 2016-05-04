@@ -1,16 +1,17 @@
-(* MicroC by Stephen Edwards Columbia University *)
-(* Semantic checking for the MicroC compiler *)
+	(* MicroC by Stephen Edwards Columbia University *)
+	(* Semantic checking for the MicroC compiler *)
 
-open Ast
+	open Ast
+      
+	module StringMap = Map.Make(String)
+	module StringSet = Set.Make(String)
 
-module StringMap = Map.Make(String)
-
-(* Semantic checking of a program. Returns void if successful,
+	(* Semantic checking of a program. Returns void if successful,
    throws an exception if something is wrong.
 
    Check each global variable, then check each function *)
 
-let check (globals, functions) =
+let check (globals, functions, structs) =
 
   (* Raise an exception if the given list has a duplicate *)
   let report_duplicate exceptf list =
@@ -21,6 +22,31 @@ let check (globals, functions) =
     in helper (List.sort compare list)
   in
 
+  (*Raise an exception if there is a recursive struct dependency*)
+  
+  let find_sdecl_from_sname struct_type_name =
+    try List.find (fun s-> s.sname= struct_type_name) structs 
+      with Not_found -> raise (Failure("Struct of name " ^ struct_type_name ^ "not found.")) 
+  in
+  let rec check_recursive_struct_helper sdecl seen_set =
+    let current_struct = sdecl.sname in
+
+    let check_if_repeat struct_type_name =
+      let found = StringSet.mem struct_type_name seen_set in
+      if found then raise (Failure ("recursive struct definition"))
+      else check_recursive_struct_helper (find_sdecl_from_sname struct_type_name)  (StringSet.add struct_type_name seen_set)
+    in
+    let is_struct_field = function
+      (StructType s, _) -> check_if_repeat s
+     | _ -> () 
+    in
+    List.iter (is_struct_field) sdecl.formals
+  in
+  let check_recursive_struct sdecl =
+     check_recursive_struct_helper sdecl StringSet.empty    
+  in
+  let check_recursive_structs = List.map check_recursive_struct structs
+  in
   (* Raise an exception if a given binding is to a void type *)
   let check_not_void exceptf = function
       (Void, n) -> raise (Failure (exceptf n))
@@ -32,7 +58,21 @@ let check (globals, functions) =
   let check_assign lvaluet rvaluet err =
      if lvaluet == rvaluet then lvaluet else raise err
   in
-   
+
+  let match_struct_to_accessor a b = 
+    let  s1 = try List.find (fun s-> s.sname=a) structs 
+      with Not_found -> raise (Failure("Struct of name " ^ a ^ "not found.")) in
+    try fst( List.find (fun s-> snd(s)=b) s1.formals) with
+	Not_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
+  in
+
+  let check_access lvaluet rvalues = 
+     match lvaluet with
+       StructType s -> match_struct_to_accessor s rvalues
+       | _ -> raise (Failure(string_of_typ lvaluet ^ " is not a struct"))
+	
+  in
+
   (**** Checking Global Variables ****)
 
   List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
@@ -120,6 +160,8 @@ let check (globals, functions) =
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
+      | Dotop(e1, field) -> let lt = expr e1 in
+       	 check_access (lt) (field)
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
 	   Neg when t = Int -> Int
@@ -127,6 +169,18 @@ let check (globals, functions) =
          | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
+      | SAssign(e1, field, e2) -> let lt = check_access (expr e1) (field)
+                                and rt = expr e2 in
+        check_assign (lt) (rt)
+                 (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
+                           string_of_typ rt ^ " in " ^ string_of_expr e2))
+      (*| SAssign(s, field, e2) -> let lt = type_of_identifier s
+                                and rt = expr e2 in 
+                                  let ltype = check_access (lt) (field)
+                                in  
+                                  check_assign (ltype) (rt) (Failure ("illegal assignment " ^ string_of_typ ltype ^
+                                      " = " ^ string_of_typ rt ^ " in " ^ string_of_expr e2))*)
+
       | Assign(var, e) as ex -> let lt = type_of_identifier var
                                 and rt = expr e in
         check_assign (type_of_identifier var) (expr e)

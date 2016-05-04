@@ -2,11 +2,11 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or | Dot
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Void | MyString
+type typ = Int | Bool | Void | MyString | StructType of string
 
 type bind = typ * string
 
@@ -16,7 +16,9 @@ type expr =
   | MyStringLit of string
   | Id of string
   | Binop of expr * op * expr
+  | Dotop of expr * string 
   | Unop of uop * expr
+  | SAssign of expr * string * expr
   | Assign of string * expr
   | Call of string * expr list
   | Noexpr
@@ -37,7 +39,13 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type struct_decl = {
+    sname: string;
+    formals: bind list;
+
+}
+
+type program = bind list * func_decl list * struct_decl list
 
 (* Pretty-printing functions *)
 
@@ -54,6 +62,7 @@ let string_of_op = function
   | Geq -> ">="
   | And -> "&&"
   | Or -> "||"
+  | Dot -> "."
 
 let string_of_uop = function
     Neg -> "-"
@@ -68,6 +77,8 @@ let rec string_of_expr = function
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
+  | Dotop(e1, e2) -> string_of_expr e1 ^ ". " ^ e2
+  | SAssign(e1, v, e2) -> string_of_expr(e1) ^ "." ^ v ^ " = " ^ string_of_expr e2
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
@@ -91,6 +102,7 @@ let string_of_typ = function
   | Bool -> "bool"
   | Void -> "void"
   | MyString -> "string"
+  | StructType(s) -> "struct" ^ s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
@@ -102,7 +114,10 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_program (vars, funcs) =
+let string_of_sdecl sdecl = sdecl.sname
+
+let string_of_program (vars, funcs, structs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs)
+  String.concat "\n" (List.map string_of_fdecl funcs) ^ "\n" ^
+  String.concat "\n" (List.map string_of_sdecl structs)
 

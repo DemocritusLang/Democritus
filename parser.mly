@@ -2,13 +2,17 @@
 /* Ocamlyacc parser for MicroC */
 
 %{
-open Ast
+open Ast;;
+
+let first (a,_,_) = a;;
+let second (_,b,_) = b;;
+let third (_,_,c) = c;;
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
-%token PLUS MINUS TIMES DIVIDE ASSIGN NOT
+%token PLUS MINUS TIMES DIVIDE ASSIGN NOT DOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION
+%token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION STRUCT
 %token <string> STRING
 %token <int> LITERAL
 %token <string> ID
@@ -24,6 +28,7 @@ open Ast
 %left PLUS MINUS
 %left TIMES DIVIDE
 %right NOT NEG
+%left DOT
 
 %start program
 %type <Ast.program> program
@@ -34,9 +39,10 @@ program:
   decls EOF { $1 }
 
 decls:
-   /* nothing */ { [], [] }
- | decls vdecl { ($2 :: fst $1), snd $1 }
- | decls fdecl { fst $1, ($2 :: snd $1) }
+   /* nothing */ { [], [], [] }
+ | decls vdecl { ($2 :: first $1), second $1, third $1 }
+ | decls fdecl { first $1, ($2 :: second $1), third $1 }
+ | decls sdecl { first $1, second $1, ($2 :: third $1) }
 
 fdecl:
    FUNCTION ID LPAREN formals_opt RPAREN typ LBRACE vdecl_list stmt_list RBRACE
@@ -59,6 +65,7 @@ typ:
   | BOOL { Bool }
   | VOID { Void }
   | STRTYPE { MyString }
+  | STRUCT ID { StructType ($2) }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -66,6 +73,12 @@ vdecl_list:
 
 vdecl:
    LET ID typ SEMI { ($3, $2) }
+
+sdecl:
+    STRUCT ID LBRACE vdecl_list RBRACE
+      { { sname = $2;
+      formals = $4;
+      } }
 
 stmt_list:
     /* nothing */  { [] }
@@ -104,6 +117,8 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
+  | expr DOT    ID   { Dotop($1, $3) }
+  | expr DOT    ID ASSIGN expr { SAssign($1, $3, $5) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | NOT expr         { Unop(Not, $2) }
   | ID ASSIGN expr   { Assign($1, $3) }
