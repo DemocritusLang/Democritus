@@ -229,20 +229,19 @@ let translate (globals, functions, structs) =
 			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
 			let index_number_list = (StringMap.find e1'_struct_name_string struct_field_index_list) in
 			let index_number = StringMap.find field index_number_list in
-		(*	pointer_to_struct_field = *)
-			(*	L.build_struct_gep e1' index_number field builder*)
-						
-			raise (Failure(L.string_of_lltype (L.type_of (L.const_ptrtoint e1' (L.type_of e1') ))))
-	 )
+			let e1'_pointer_value = L.build_pointercast e1' (L.type_of e1') "temp" builder in
+			let e1'_pointer_type = L.pointer_type e1'_lltype in
+	
+			let plz = L.build_gep e1' [|e1'|] "tmp" builder in
+			raise (Failure(L.string_of_lltype (L.type_of (plz))))
+	
+		(*	L.build_struct_gep plz index_number field builder *)
 
-(*		              in
-				      try
-					 ignore (
-                                        (*  (L.build_store e' (L.build_struct_gep e'' *) (StringMap.find field (StringMap.find (string_option_to_string (L.struct_name (L.type_of e''))) struct_field_index_list))(* field builder)) builder*)
-					  );
-					  e2'
-				      with Not_found -> raise(Failure("poop"))
-                      )*)
+ )
+
+
+
+
 
       | A.Assign (s, e) -> let e' = expr builder e in
 	                   ignore (L.build_store e' (lookup s) builder); e'
