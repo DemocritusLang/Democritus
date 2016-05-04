@@ -56,7 +56,7 @@ let check (globals, functions) =
       locals = []; body = [] };
       { typ = Void; fname = "printb"; formals = [(Bool, "x")];
       locals = []; body = [] }; 
-      { typ = Void; fname = "thread"; formals = []; locals = []; body = [] }]
+      { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] }]
 
   in
 
