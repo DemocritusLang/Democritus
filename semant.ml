@@ -2,7 +2,7 @@
 	(* Semantic checking for the MicroC compiler *)
 
 	open Ast
-      
+        
 	module StringMap = Map.Make(String)
 	module StringSet = Set.Make(String)
 
@@ -56,7 +56,7 @@ let check (globals, functions, structs) =
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
   let check_assign lvaluet rvaluet err =
-     if lvaluet == rvaluet then lvaluet else raise err
+    if lvaluet == rvaluet then lvaluet else raise err
   in
 
   let match_struct_to_accessor a b = 

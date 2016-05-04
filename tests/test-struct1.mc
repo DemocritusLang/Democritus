@@ -21,6 +21,8 @@ function main() int
 {
   let b bool;
   let x struct Circle;
+  let c struct Color;
+  x.color = c;
   x.color.red = true; 
   print("hello world\n");
   return 0;

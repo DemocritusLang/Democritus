@@ -152,7 +152,7 @@ let translate (globals, functions, structs) =
     in
     let string_option_to_string = function
 	None -> ""
-	|Some(s) -> raise(Failure(s))
+	|Some(s) -> s
 
     in
     (* Construct code for an expression; return its value *)
@@ -199,26 +199,46 @@ let translate (globals, functions, structs) =
 	  (match op with
 	    A.Neg     -> L.build_neg
           | A.Not     -> L.build_not) e' "tmp" builder
-      | A.SAssign(e1, field, e2) -> let e' = expr builder e2 in
-                     (* let e'' = expr builder e1 in*)
-                      (match e1 with
-                        A.Id s -> let etype = fst(
-                        try 
-                          List.find (fun t -> snd(t) = s) fdecl.A.locals
-                        with Not_found -> raise (Failure("unable to find " ^ s))) in
-                         (match etype with
-                          A.StructType t -> try ignore ((L.build_store e' (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder)) builder); e'
-                          with Not_found -> raise (Failure("unable to find "^ t))
-                          | _ -> raise (Failure("StructType not found.")))
-                        |_ as wild -> let e'' = expr builder wild 
-			              in
+      | A.SAssign(e1, field, e2) -> 
+	let e2' = expr builder e2 in
+	(match e1 with
+		A.Id s ->
+			let e1typ = fst(try
+				List.find (fun t -> snd(t) = s) fdecl.A.locals
+				with Not_found -> raise(Failure("poop1")))
+			in
+			(match e1typ with
+				A.StructType t -> (try 
+					let index_number_list = StringMap.find t struct_field_index_list in
+                      			let index_number = StringMap.find field index_number_list in
+                      			let pointer_to_struct_field =
+						L.build_struct_gep (lookup s) index_number field builder
+                      			in
+                      			(try (ignore (L.build_store e2' pointer_to_struct_field builder); e2')
+                        		with Not_found -> raise (Failure("unable to find " ^ t)))
+                    	 	with Not_found -> raise(Failure("_")) )
+                 	|_ -> raise (Failure("StructType not found")) )
+		|_ as e1_expr ->
+			let e1' = expr builder e1_expr in
+			let e1'_lltype = L.type_of e1'  in
+			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+			let index_number_list = (StringMap.find e1'_struct_name_string struct_field_index_list) in
+			let index_number = StringMap.find field index_number_list in
+		(*	pointer_to_struct_field = *)
+				L.build_struct_gep e1' index_number field builder
+						
+			(*raise (Failure(L.string_of_lltype e1'_lltype))*)
+	 )
+
+(*		              in
 				      try
 					 ignore (
-                                          (L.build_store e' (L.build_struct_gep e'' (StringMap.find field (StringMap.find (string_option_to_string (L.struct_name (L.type_of e''))) struct_field_index_list)) field builder)) builder
+                                        (*  (L.build_store e' (L.build_struct_gep e'' *) (StringMap.find field (StringMap.find (string_option_to_string (L.struct_name (L.type_of e''))) struct_field_index_list))(* field builder)) builder*)
 					  );
-					  e'
+					  e2'
 				      with Not_found -> raise(Failure("poop"))
-                      )
+                      )*)
 
       | A.Assign (s, e) -> let e' = expr builder e in
 	                   ignore (L.build_store e' (lookup s) builder); e'
