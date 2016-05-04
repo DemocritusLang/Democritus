@@ -60,10 +60,10 @@ let translate (globals, functions, structs) =
 
 	let populate_struct_type sdecl = 
 		let struct_t = Hashtbl.find struct_types sdecl.A.sname in
-		let type_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
+		let type_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.sformals) in
 		L.struct_set_body struct_t type_list true
 	in 
-	let whatever = List.map populate_struct_type structs in
+    ignore(List.map populate_struct_type structs);
 	
 (*
   let rec  ltype_of_typ = function
@@ -74,7 +74,7 @@ let translate (globals, functions, structs) =
          let struct_decls =
    	   let struct_decl m sdecl =
              let struct_name = sdecl.A.sname
-	 	 and struct_field_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
+	 	 and struct_field_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.sformals) in
       	     let stype = L.named_struct_type context struct_name in
 	     let dummyunittype = L.struct_set_body stype struct_field_list false in
      	   StringMap.add struct_name stype m in
@@ -87,7 +87,7 @@ let translate (globals, functions, structs) =
   let struct_field_index_list =
 	let handle_list m individual_struct = 
 		(*list of all field names for that struct*) 
-		let struct_field_name_list = List.map snd individual_struct.A.formals in
+		let struct_field_name_list = List.map snd individual_struct.A.sformals in
 		let increment n = n + 1 in
 		let add_field_and_index (m, i) field_name =
 			(*add each field and index to the second map*)
@@ -97,7 +97,7 @@ let translate (globals, functions, structs) =
 			List.fold_left add_field_and_index (StringMap.empty, -1) struct_field_name_list
 		in
 		(*add field map (the first part of the tuple) to the main map*)
-		StringMap.add individual_struct.sname (fst struct_field_map) m	
+		StringMap.add individual_struct.A.sname (fst struct_field_map) m	
 	in
 	List.fold_left handle_list StringMap.empty structs	
   in
@@ -178,7 +178,7 @@ let translate (globals, functions, structs) =
 	  | A.Greater -> L.build_icmp L.Icmp.Sgt
 	  | A.Geq     -> L.build_icmp L.Icmp.Sge
 	  ) e1' e2' "tmp" builder
-    | A.Dotop(e1, field) -> let e' = expr builder e1 in
+    | A.Dotop(e1, field) -> let _ = expr builder e1 in
       (match e1 with
           A.Id s -> let etype = fst( 
                 try
@@ -198,15 +198,16 @@ let translate (globals, functions, structs) =
 	    A.Neg     -> L.build_neg
           | A.Not     -> L.build_not) e' "tmp" builder
       | A.SAssign(e1, field, e2) -> let e' = expr builder e2 in
-                      let e'' = expr builder e1 in
+                      let _ = expr builder e1 in
                       (match e1 with
                         A.Id s -> let etype = fst(
                         try 
                           List.find (fun t -> snd(t) = s) fdecl.A.locals
                         with Not_found -> raise (Failure("unable to find " ^ s))) in
                          (match etype with
-                          A.StructType t -> try ignore ((L.build_store e' (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder)) builder); e'
-                          with Not_found -> raise (Failure("unable to find "^ t))
+                          A.StructType t -> 
+                            (try ignore ((L.build_store e' (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder)) builder); e'
+                            with Not_found -> raise (Failure("unable to find "^ t)))
                           | _ -> raise (Failure("StructType not found.")))
                         |_ -> raise (Failure("Structype not foundd."))
                       )

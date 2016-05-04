@@ -40,7 +40,7 @@ let check (globals, functions, structs) =
       (StructType s, _) -> check_if_repeat s
      | _ -> () 
     in
-    List.iter (is_struct_field) sdecl.formals
+    List.iter (is_struct_field) sdecl.sformals
   in
   let check_recursive_struct sdecl =
      check_recursive_struct_helper sdecl StringSet.empty    
@@ -62,7 +62,7 @@ let check (globals, functions, structs) =
   let match_struct_to_accessor a b = 
     let  s1 = try List.find (fun s-> s.sname=a) structs 
       with Not_found -> raise (Failure("Struct of name " ^ a ^ "not found.")) in
-    try fst( List.find (fun s-> snd(s)=b) s1.formals) with
+    try fst( List.find (fun s-> snd(s)=b) s1.sformals) with
 	Not_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
   in
 

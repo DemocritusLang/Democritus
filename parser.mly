@@ -77,7 +77,7 @@ vdecl:
 sdecl:
     STRUCT ID LBRACE vdecl_list RBRACE
       { { sname = $2;
-      formals = $4;
+      sformals = $4;
       } }
 
 stmt_list:

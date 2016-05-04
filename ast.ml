@@ -2,7 +2,7 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or | Dot
+          And | Or 
 
 type uop = Neg | Not
 
@@ -41,7 +41,7 @@ type func_decl = {
 
 type struct_decl = {
     sname: string;
-    formals: bind list;
+    sformals: bind list;
 
 }
 
@@ -62,7 +62,6 @@ let string_of_op = function
   | Geq -> ">="
   | And -> "&&"
   | Or -> "||"
-  | Dot -> "."
 
 let string_of_uop = function
     Neg -> "-"
