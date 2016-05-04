@@ -1,19 +1,19 @@
 struct Rectangle
 {
-  int width;
-  int height;
+  let width int;
+  let height int;
 }
 
 struct Circle
 {
-  int radius;
-  struct Rectangle r;
+  let radius int;
+  let r struct Rectangle;
 }
 
-function int main()
+function main() int
 {
-  bool b;
-  struct Circle x;
+  let b bool;
+  let x struct Circle; 
   print("hello world\n");
   return 0;
 }

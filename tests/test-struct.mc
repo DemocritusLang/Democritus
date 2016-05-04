@@ -1,19 +1,19 @@
 struct Rectangle
 {
-  int width;
-  int height;
+  let width int;
+  let height int;
 }
 
 struct Circle
 {
-  int radius;
+  let radius int;
 }
 
-function int main()
+function main() int
 {
-  bool b;
-  int y;
-  struct Circle x;
+  let b bool;
+  let y int;
+  let x struct Circle;
   x.radius=4;
   y = x.radius + 6; 
   print_int(y);
