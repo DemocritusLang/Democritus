@@ -1,0 +1,143 @@
+ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	microc.native
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules microc.ml > microc.ml.depends
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules ast.ml > ast.ml.depends
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules codegen.ml > codegen.ml.depends
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmo ast.ml
++ ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmo ast.ml
+File "ast.ml", line 111, characters 61-68:
+Warning 42: this use of formals required disambiguation.
+/usr/bin/ocamlyacc parser.mly
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules parser.mli > parser.mli.depends
+/usr/bin/ocamllex -q scanner.mll
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules scanner.ml > scanner.ml.depends
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o parser.cmi parser.mli
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules semant.ml > semant.ml.depends
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
++ ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmo codegen.ml
+File "codegen.ml", line 90, characters 62-71:
+Warning 41: formals belongs to several types: A.struct_decl A.func_decl
+The first one was selected. Please disambiguate if this is wrong.
+File "codegen.ml", line 100, characters 34-39:
+Warning 40: sname was selected from type A.struct_decl.
+It is not visible in the current scope, and will not 
+be selected if the type becomes unknown.
+File "codegen.ml", line 100, characters 34-39:
+Warning 42: this use of sname required disambiguation.
+File "codegen.ml", line 121, characters 61-70:
+Warning 42: this use of formals required disambiguation.
+File "codegen.ml", line 146, characters 69-78:
+Warning 42: this use of formals required disambiguation.
+File "codegen.ml", line 167, characters 3-459:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+Dot
+File "codegen.ml", line 207, characters 25-399:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+(Int|Bool|Void|MyString)
+File "codegen.ml", line 47, characters 5-26:
+Warning 26: unused variable generate_struct_types.
+File "codegen.ml", line 50, characters 5-21:
+Warning 26: unused variable find_struct_type.
+File "codegen.ml", line 66, characters 5-13:
+Warning 26: unused variable whatever.
+File "codegen.ml", line 181, characters 32-34:
+Warning 26: unused variable e'.
+File "codegen.ml", line 201, characters 26-29:
+Warning 26: unused variable e''.
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmo scanner.ml
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o semant.cmo semant.ml
++ ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o semant.cmo semant.ml
+File "semant.ml", line 92, characters 36-43:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 96, characters 40-47:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 102, characters 37-44:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 119, characters 33-40:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 122, characters 25-32:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 132, characters 33-40:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 183, characters 50-57:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 185, characters 29-36:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 191, characters 16-23:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 32, characters 8-22:
+Warning 26: unused variable current_struct.
+File "semant.ml", line 48, characters 6-29:
+Warning 26: unused variable check_recursive_structs.
+ocamlfind ocamlc -c -w +a-4 -package llvm.analysis -package llvm -o microc.cmo microc.ml
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmx ast.ml
++ ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o ast.cmx ast.ml
+File "ast.ml", line 111, characters 61-68:
+Warning 42: this use of formals required disambiguation.
+ocamlfind ocamldep -package llvm.analysis -package llvm -modules parser.ml > parser.ml.depends
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o parser.cmx parser.ml
++ ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o parser.cmx parser.ml
+File "parser.mly", line 51, characters 2-9:
+Warning 42: this use of formals required disambiguation.
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmx codegen.ml
++ ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o codegen.cmx codegen.ml
+File "codegen.ml", line 90, characters 62-71:
+Warning 41: formals belongs to several types: A.struct_decl A.func_decl
+The first one was selected. Please disambiguate if this is wrong.
+File "codegen.ml", line 100, characters 34-39:
+Warning 40: sname was selected from type A.struct_decl.
+It is not visible in the current scope, and will not 
+be selected if the type becomes unknown.
+File "codegen.ml", line 100, characters 34-39:
+Warning 42: this use of sname required disambiguation.
+File "codegen.ml", line 121, characters 61-70:
+Warning 42: this use of formals required disambiguation.
+File "codegen.ml", line 146, characters 69-78:
+Warning 42: this use of formals required disambiguation.
+File "codegen.ml", line 167, characters 3-459:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+Dot
+File "codegen.ml", line 207, characters 25-399:
+Warning 8: this pattern-matching is not exhaustive.
+Here is an example of a value that is not matched:
+(Int|Bool|Void|MyString)
+File "codegen.ml", line 47, characters 5-26:
+Warning 26: unused variable generate_struct_types.
+File "codegen.ml", line 50, characters 5-21:
+Warning 26: unused variable find_struct_type.
+File "codegen.ml", line 66, characters 5-13:
+Warning 26: unused variable whatever.
+File "codegen.ml", line 181, characters 32-34:
+Warning 26: unused variable e'.
+File "codegen.ml", line 201, characters 26-29:
+Warning 26: unused variable e''.
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o scanner.cmx scanner.ml
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o semant.cmx semant.ml
++ ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o semant.cmx semant.ml
+File "semant.ml", line 92, characters 36-43:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 96, characters 40-47:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 102, characters 37-44:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 119, characters 33-40:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 122, characters 25-32:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 132, characters 33-40:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 183, characters 50-57:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 185, characters 29-36:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 191, characters 16-23:
+Warning 42: this use of formals required disambiguation.
+File "semant.ml", line 32, characters 8-22:
+Warning 26: unused variable current_struct.
+File "semant.ml", line 48, characters 6-29:
+Warning 26: unused variable check_recursive_structs.
+ocamlfind ocamlopt -c -w +a-4 -package llvm.analysis -package llvm -o microc.cmx microc.ml
+ocamlfind ocamlopt -linkpkg -package llvm.analysis -package llvm ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx microc.cmx -o microc.native

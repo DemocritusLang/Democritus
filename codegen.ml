@@ -65,23 +65,6 @@ let translate (globals, functions, structs) =
 	in 
 	let whatever = List.map populate_struct_type structs in
 	
-(*
-  let rec  ltype_of_typ = function
-      A.Int -> i32_t
-    | A.Bool -> i1_t
-    | A.Void -> void_t
-    | A.StructType s ->
-         let struct_decls =
-   	   let struct_decl m sdecl =
-             let struct_name = sdecl.A.sname
-	 	 and struct_field_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.formals) in
-      	     let stype = L.named_struct_type context struct_name in
-	     let dummyunittype = L.struct_set_body stype struct_field_list false in
-     	   StringMap.add struct_name stype m in
-   	 List.fold_left struct_decl StringMap.empty structs in
-      StringMap.find s struct_decls
-    | A.MyString -> ptr_t in
-*)
   (*struct_field_index is a map where key is struct name and value is another map*)
   (*in the second map, the key is the field name and the value is the index number*)
   let struct_field_index_list =
@@ -129,18 +112,33 @@ let translate (globals, functions, structs) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
-    
+   
+    let llvalue_lltype_hash:(L.llvalue, L.lltype) Hashtbl.t = Hashtbl.create 50 in
+ 
+    let add_to_llvalue_lltype_hash value var_type =
+	Hashtbl.add llvalue_lltype_hash value var_type
+    in
+ 
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
        value, if appropriate, and remember their values in the "locals" map *)
     let local_vars =
       let add_formal m (t, n) p = L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
+	let local_vars_type = ltype_of_typ t
+        in
+	let local = L.build_alloca local_vars_type n builder
+        in
+	let blah = add_to_llvalue_lltype_hash local local_vars_type
+	in
 	ignore (L.build_store p local builder);
 	StringMap.add n local m in
 
       let add_local m (t, n) =
-	let local_var = L.build_alloca (ltype_of_typ t) n builder
+        let local_type = ltype_of_typ t
+        in
+	let local_var = L.build_alloca local_type n builder
+	in
+	let blah = add_to_llvalue_lltype_hash local_var local_type
 	in StringMap.add n local_var m in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.A.formals
@@ -152,7 +150,11 @@ let translate (globals, functions, structs) =
                  with Not_found -> try StringMap.find n global_vars
                  with Not_found -> raise (Failure ("undeclared variable " ^ n))
     in
+    let string_option_to_string = function
+	None -> ""
+	|Some(s) -> raise(Failure(s))
 
+    in
     (* Construct code for an expression; return its value *)
     let rec expr builder = function
 	A.Literal i -> L.const_int i32_t i
@@ -198,7 +200,7 @@ let translate (globals, functions, structs) =
 	    A.Neg     -> L.build_neg
           | A.Not     -> L.build_not) e' "tmp" builder
       | A.SAssign(e1, field, e2) -> let e' = expr builder e2 in
-                      let e'' = expr builder e1 in
+                     (* let e'' = expr builder e1 in*)
                       (match e1 with
                         A.Id s -> let etype = fst(
                         try 
@@ -208,7 +210,14 @@ let translate (globals, functions, structs) =
                           A.StructType t -> try ignore ((L.build_store e' (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder)) builder); e'
                           with Not_found -> raise (Failure("unable to find "^ t))
                           | _ -> raise (Failure("StructType not found.")))
-                        |_ -> raise (Failure("Structype not foundd."))
+                        |_ as wild -> let e'' = expr builder wild 
+			              in
+				      try
+					 ignore (
+                                          (L.build_store e' (L.build_struct_gep e'' (StringMap.find field (StringMap.find (string_option_to_string (L.struct_name (L.type_of e''))) struct_field_index_list)) field builder)) builder
+					  );
+					  e'
+				      with Not_found -> raise(Failure("poop"))
                       )
 
       | A.Assign (s, e) -> let e' = expr builder e in

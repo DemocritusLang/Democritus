@@ -1,0 +1,12 @@
+
+###### Testing test-*
+./microc.native < tests/test-*.mc > test-*.ll
+../testall.sh: 1: eval: cannot open tests/test-*.mc: No such file
+###### FAILED
+
+###### Testing fail-*
+./microc.native < tests/fail-*.mc 2> fail-assign1.err fail-assign2.err fail-assign3.err fail-dead1.err fail-dead2.err fail-expr1.err fail-expr2.err fail-for-as-while1.err fail-for-as-while2.err fail-for1.err fail-for2.err fail-for3.err fail-for4.err fail-for5.err fail-func1.err fail-func2.err fail-func3.err fail-func4.err fail-func5.err fail-func6.err fail-func7.err fail-func8.err fail-func9.err fail-global1.err fail-global2.err fail-if1.err fail-if2.err fail-if3.err fail-nomain.err fail-return1.err fail-return2.err >> testall.log
+../testall.sh: 1: eval: cannot open tests/fail-*.mc: No such file
+diff -b fail-assign1.err fail-assign2.err > fail-assign3.err
+FAILED fail-assign1.err differs from fail-assign2.err
+###### FAILED
