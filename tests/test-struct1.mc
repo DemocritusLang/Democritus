@@ -2,39 +2,38 @@ struct Rectangle
 {
   let width int;
   let height int;
-  let color struct Color;
+  let color struct Test_Struct;
 }
 
 struct Circle
-{
+{ 
   let radius int;
-  let cool bool;
-  let color struct Color;
+  let extra_struct struct Test_Struct;
 }
 
-struct Color
-{
-  let red int;
-  let color2 struct Test;
-}
-
-struct Test
+struct Test_Struct
 {
   let number int;
 }
 
 function main() int
 {
+  
   let a int;
-  let b bool;
-  let x struct Circle;
-  let inside struct Color;
+  let b int;
+  let circle struct Circle;
+  let test_struct struct Test_Struct;
   
-  x.color = inside;
+  test_struct.number = 100;
   
-  x.color.red = 1;
-(*  x.color.color2.number = 2; *)
+  circle.radius = 666;
+  circle.extra_struct = test_struct; 
+  circle.extra_struct.number = 42;
+
+  a = test_struct.number;
+  b = circle.radius;
+
+  print_int(a);
   
-  print("hello world\n");
   return 0;
 }

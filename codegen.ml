@@ -192,9 +192,16 @@ let translate (globals, functions, structs) =
 		(*	raise (Failure(L.string_of_lltype (L.type_of (L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder))))
 *)
 
- 		L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder
-              | _ -> raise (Failure("No structype."))
-              with Not_found -> raise (Failure("unable to find" ^s))
+ 	 L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder
+	(*let dot_op_answer_type = L.type_of dot_op_answer in
+	let dot_op_answer_type_string_option = L.struct_name dot_op_answer_type in
+	let dot_op_answer_type_string = string_option_to_string dot_op_answer_type_string_option in
+	try let _ = Hashtbl.find struct_types dot_op_answer_type_string in
+	    
+ 	L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder
+		 with Not_found -> dot_op_answer*)
+              | _ -> raise (Failure("No structype.")) 
+              with Not_found -> raise (Failure("unable to find" ^s)) 
             )
         | _ -> raise (Failure("Not a struct."))
       )
@@ -217,7 +224,8 @@ let translate (globals, functions, structs) =
                       			let index_number = StringMap.find field index_number_list in
                       			let pointer_to_struct_field =
 						L.build_struct_gep (lookup s) index_number field builder
-                      			in
+					in
+                      		(*	in raise(Failure(L.string_of_llvalue pointer_to_struct_field)) *)
                       			(try (ignore (L.build_store e2' pointer_to_struct_field builder); e2')
                         		with Not_found -> raise (Failure("unable to find " ^ t)))
                     	 	with Not_found -> raise(Failure("_")) )
@@ -232,11 +240,13 @@ let translate (globals, functions, structs) =
 			let e1'_pointer_value = L.build_pointercast e1' (L.type_of e1') "temp" builder in
 			let e1'_pointer_type = L.pointer_type e1'_lltype in
 			let e1'_pointer_value = L.build_alloca e1'_pointer_type "pointer_val" builder in
-			let plz = L.build_gep e1'_pointer_value [|e1'|] "tmp" builder in
-			let omg = L.build_load plz "lol" builder in
-			(*raise (Failure(L.string_of_lltype (L.type_of (omg))))*)
-	
-			L.build_struct_gep omg index_number field builder 
+			let val_store = L.build_alloca e1'_lltype "help" builder in
+			let _ =  L.build_store e1' val_store in
+			let _ = L.build_store val_store e1'_pointer_value in
+			(*raise (Failure(L.string_of_llvalue e1'_pointer_value)) *)
+			let pointer_to_struct_field = L.build_struct_gep val_store index_number field builder in
+			(*raise (Failure(L.string_of_llvalue pointer_to_struct_field))*)
+			L.build_store e2' pointer_to_struct_field builder; e2' 
 
  )
 
