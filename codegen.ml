@@ -211,7 +211,7 @@ ignore (Llvm_linker.link_modules the_module llm) *)
                 L.build_call printf_func [| (expr builder e) |] "printf" builder
       | A.Call ("thread", [e])->
 		L.build_call thread_func
-                [| (expr builder  ([ (L.lookup_function (List.nth 0) the_module) ] :: List.tl e)) |]
+                [| (expr builder ((L.lookup_function (List.nth e 0) the_module)  :: (List.tl e))) |]
                 "init_thread" builder
       | A.Call (f, act) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
