@@ -290,7 +290,7 @@ ignore (Llvm_linker.link_modules the_module llm) *)
 
   let llmem = Llvm.MemoryBuffer.of_file "bindings.bc" in
   let llm = Llvm_bitreader.parse_bitcode context llmem in
-  ignore(Llvm_linker.link_modules the_module llm);
+  ignore(Llvm_linker.link_modules the_module llm Llvm_linker.Mode.PreserveSource);
 
   the_module
 
