@@ -14,19 +14,27 @@ struct Circle
 
 struct Color
 {
-  let red bool;
+  let red int;
+  let color2 struct Test;
+}
+
+struct Test
+{
+  let number int;
 }
 
 function main() int
 {
+  let a int;
   let b bool;
   let x struct Circle;
-  x.cool=true;
-  b = x.cool; 
+  let inside struct Color;
   
-  x.color.red = true;
-/*  x.color.red = true;
-*/
+  x.color = inside;
+  
+  x.color.red = 1;
+(*  x.color.color2.number = 2; *)
+  
   print("hello world\n");
   return 0;
 }

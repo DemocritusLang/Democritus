@@ -231,11 +231,12 @@ let translate (globals, functions, structs) =
 			let index_number = StringMap.find field index_number_list in
 			let e1'_pointer_value = L.build_pointercast e1' (L.type_of e1') "temp" builder in
 			let e1'_pointer_type = L.pointer_type e1'_lltype in
+			let e1'_pointer_value = L.build_alloca e1'_pointer_type "pointer_val" builder in
+			let plz = L.build_gep e1'_pointer_value [|e1'|] "tmp" builder in
+			let omg = L.build_load plz "lol" builder in
+			(*raise (Failure(L.string_of_lltype (L.type_of (omg))))*)
 	
-			let plz = L.build_gep e1' [|e1'|] "tmp" builder in
-			raise (Failure(L.string_of_lltype (L.type_of (plz))))
-	
-		(*	L.build_struct_gep plz index_number field builder *)
+			L.build_struct_gep omg index_number field builder 
 
  )
 
