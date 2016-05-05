@@ -105,7 +105,7 @@ let check (globals, functions) =
 
     let type_of_identifier s =
       try StringMap.find s symbols
-      with Not_found -> raise (Failure ("Semant: undeclared identifier " ^ s))
+      with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
     (* Return the type of an expression or throw an exception *)

@@ -218,8 +218,6 @@ ignore (Llvm_linker.link_modules the_module llm) *)
 *)
                 "init_thread" builder
       | A.Call (f, act) ->
-         Printf.printf "Hi\n";
-         print_string f;
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
 	 let result = (match fdecl.A.typ with A.Void -> ""
