@@ -1,5 +1,5 @@
 
-function sayhello() void
+function sayhello(noop int) void
 {
     print("hello!\n");
 }
@@ -7,6 +7,6 @@ function sayhello() void
 
 function main() int
 {
-    thread(sayhello,  5);  
+    thread("sayhello", 0, 5);
     return 0;
 }

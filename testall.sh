@@ -80,7 +80,8 @@ Check() {
     generatedfiles=""
 
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
-    Run "$MICROC" "<" $1 ">" "${basename}.ll" &&
+v
+    Run "$MICROC" "<" $1 "2>&1 >" "${basename}.ll" &&
     Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
