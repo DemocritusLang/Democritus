@@ -44,11 +44,8 @@ let translate (globals, functions, structs) =
 		let struct_t = L.named_struct_type context sdecl.A.sname in
 		Hashtbl.add struct_types sdecl.A.sname struct_t
 	in
-	let generate_struct_types =
+	let _  =
 		List.map add_empty_named_struct_types structs 
-	in
-	let find_struct_type sname =
-		Hashtbl.find struct_types sname
 	in
 
 	let ltype_of_typ = function
@@ -65,23 +62,6 @@ let translate (globals, functions, structs) =
 	in 
     ignore(List.map populate_struct_type structs);
 	
-(*
-  let rec  ltype_of_typ = function
-      A.Int -> i32_t
-    | A.Bool -> i1_t
-    | A.Void -> void_t
-    | A.StructType s ->
-         let struct_decls =
-   	   let struct_decl m sdecl =
-             let struct_name = sdecl.A.sname
-	 	 and struct_field_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.sformals) in
-      	     let stype = L.named_struct_type context struct_name in
-	     let dummyunittype = L.struct_set_body stype struct_field_list false in
-     	   StringMap.add struct_name stype m in
-   	 List.fold_left struct_decl StringMap.empty structs in
-      StringMap.find s struct_decls
-    | A.MyString -> ptr_t in
-*)
   (*struct_field_index is a map where key is struct name and value is another map*)
   (*in the second map, the key is the field name and the value is the index number*)
   let struct_field_index_list =

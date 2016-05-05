@@ -29,8 +29,6 @@ let check (globals, functions, structs) =
       with Not_found -> raise (Failure("Struct of name " ^ struct_type_name ^ "not found.")) 
   in
   let rec check_recursive_struct_helper sdecl seen_set =
-    let current_struct = sdecl.sname in
-
     let check_if_repeat struct_type_name =
       let found = StringSet.mem struct_type_name seen_set in
       if found then raise (Failure ("recursive struct definition"))
@@ -45,7 +43,7 @@ let check (globals, functions, structs) =
   let check_recursive_struct sdecl =
      check_recursive_struct_helper sdecl StringSet.empty    
   in
-  let check_recursive_structs = List.map check_recursive_struct structs
+  let _ = List.map check_recursive_struct structs
   in
   (* Raise an exception if a given binding is to a void type *)
   let check_not_void exceptf = function
