@@ -153,8 +153,8 @@ let translate (globals, functions, structs) =
     let string_option_to_string = function
 	None -> ""
 	|Some(s) -> s
-
     in
+
     (* Construct code for an expression; return its value *)
     let rec expr builder = function
 	A.Literal i -> L.const_int i32_t i
@@ -180,7 +180,7 @@ let translate (globals, functions, structs) =
 	  | A.Greater -> L.build_icmp L.Icmp.Sgt
 	  | A.Geq     -> L.build_icmp L.Icmp.Sge
 	  ) e1' e2' "tmp" builder
-    | A.Dotop(e1, field) -> let e' = expr builder e1 in
+    | A.Dotop(e1, field) -> (*let e' = expr builder e1 in*)
       (match e1 with
           A.Id s -> let etype = fst( 
                 try
@@ -189,21 +189,41 @@ let translate (globals, functions, structs) =
                 in
             (try match etype with
               A.StructType t-> 
-		(*	raise (Failure(L.string_of_lltype (L.type_of (L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder))))
-*)
-
- 	 L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder
-	(*let dot_op_answer_type = L.type_of dot_op_answer in
-	let dot_op_answer_type_string_option = L.struct_name dot_op_answer_type in
-	let dot_op_answer_type_string = string_option_to_string dot_op_answer_type_string_option in
-	try let _ = Hashtbl.find struct_types dot_op_answer_type_string in
-	    
- 	L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder
-		 with Not_found -> dot_op_answer*)
-              | _ -> raise (Failure("No structype.")) 
+		let index_number_list = StringMap.find t struct_field_index_list in
+		let index_number = StringMap.find field index_number_list in
+		let pointer_to_val = lookup s in
+              
+		let temp_answer_val = L.build_struct_gep pointer_to_val index_number "tip" builder in
+		let answer_val = L.build_load (temp_answer_val) ("heretmp") builder		
+		in answer_val
+	
+	(*	let answer_val_string = string_option_to_string (L.struct_name (L.type_of answer_val)) in
+		if Hashtbl.mem struct_types answer_val_string 
+			then (temp_answer_val; raise (Failure(L.string_of_llvalue temp_answer_val)) )
+			else answer_val
+	*)
+	 | _ -> raise (Failure("No structype.")) 
               with Not_found -> raise (Failure("unable to find" ^s)) 
             )
-        | _ -> raise (Failure("Not a struct."))
+      	|_ as e1_expr ->
+	let e1' = expr builder e1_expr in
+	let e1'_lltype = L.type_of e1'  in
+	let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+	let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+	let index_number_list = (StringMap.find e1'_struct_name_string struct_field_index_list) in
+	let index_number = StringMap.find field index_number_list in
+	
+	let e1'_pointer_type = L.pointer_type e1'_lltype in 
+
+	let val_store = L.build_alloca e1'_lltype "val_store" builder in
+	let e1'_pointer_value = L.build_alloca e1'_pointer_type "pointer_val" builder in
+
+	let _ =  L.build_store e1' val_store builder in
+	let _ = L.build_store val_store e1'_pointer_value builder in
+
+	let plz_val = L.build_load e1'_pointer_value "plz_val" builder in
+
+	L.build_load(L.build_struct_gep val_store index_number "in_dotop" builder) "temp" builder	
       )
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
@@ -235,18 +255,23 @@ let translate (globals, functions, structs) =
 			let e1'_lltype = L.type_of e1'  in
 			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
 			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
-			let index_number_list = (StringMap.find e1'_struct_name_string struct_field_index_list) in
-			let index_number = StringMap.find field index_number_list in
-			let e1'_pointer_value = L.build_pointercast e1' (L.type_of e1') "temp" builder in
-			let e1'_pointer_type = L.pointer_type e1'_lltype in
-			let e1'_pointer_value = L.build_alloca e1'_pointer_type "pointer_val" builder in
-			let val_store = L.build_alloca e1'_lltype "help" builder in
-			let _ =  L.build_store e1' val_store in
-			let _ = L.build_store val_store e1'_pointer_value in
-			(*raise (Failure(L.string_of_llvalue e1'_pointer_value)) *)
-			let pointer_to_struct_field = L.build_struct_gep val_store index_number field builder in
-			(*raise (Failure(L.string_of_llvalue pointer_to_struct_field))*)
-			L.build_store e2' pointer_to_struct_field builder; e2' 
+			let index_number_list = try( StringMap.find e1'_struct_name_string struct_field_index_list) with Not_found -> raise (Failure("whaterver")) in
+			let index_number = try (StringMap.find field index_number_list) with Not_found -> raise (Failure("omg")) in
+
+			let e1'_pointer_type = L.pointer_type e1'_lltype in 
+
+			let val_store = L.build_alloca e1'_lltype "assign_val_store" builder in
+			let e1'_pointer_value = L.build_alloca e1'_pointer_type "pointer_val" builder in 
+
+			let _ =  L.build_store e1' val_store builder in 
+			let _ = L.build_store val_store e1'_pointer_value builder in 
+			
+			let plz_val = L.build_load e1'_pointer_value "plz_val" builder in 
+			let pointer_to_struct_field = L.build_struct_gep plz_val index_number "in_assign" builder in
+			let _ = L.build_store e2' pointer_to_struct_field builder in
+			
+	(*		raise (Failure(L.string_of_llvalue pointer_to_struct_field))
+			; *) e2' 
 
  )
 
