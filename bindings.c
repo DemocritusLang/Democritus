@@ -1,6 +1,6 @@
-#include<pthread.h> 
+#include <pthread.h>
 
-void init_thread(void *(start_routine) (void *), int nthreads)
+void init_thread(void *(start_routine) (void *), int arg, int nthreads)
 {
     pthread_t thread[nthreads];
     int i;
@@ -11,4 +11,4 @@ void init_thread(void *(start_routine) (void *), int nthreads)
     for (i = 0; i < nthreads; i++) {
 	pthread_join(thread[i], NULL);
     }
-}    
+}
