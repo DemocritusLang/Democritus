@@ -1,100 +1,3 @@
-(* MicroC by Stephen Edwards Columbia University *)
-(* Code generation: translate takes a semantically checked AST and
-produces LLVM IR
-
-LLVM tutorial: Make sure to read the OCaml version of the tutorial
-
-http://llvm.org/docs/tutorial/index.html
-
-Detailed documentation on the OCaml LLVM library:
-
-http://llvm.moe/
-http://llvm.moe/ocaml/
-
-*)
-(*
-open Llvm
-open Ast
-
-open Llvm.MemoryBuffer
-open Llvm_bitreader
-
-let context = global_context ()
-let the_module = create_module context "MicroC"
-let builder = builder context
-
-(* TODO: named_values, named_params *)
-
-let i32_t = i32_type context;;
-let i8_t = i8_type context;;
-let i1_t = i1_type context;;
-let void_t = void_type context;;
-let ptr_t = pointer_type (i8_type (context));;
-
-let ltype_of_typ = function
-      A.Int -> i32_t
-    | A.Bool -> i1_t
-    | A.Void -> void_t
-    | A.MyString -> ptr_t;;
-
-let global_vars = 
-  let global_var m ( t, n) = 
-    let init =const_int (ltype_of_typ t) 0 
-    in StringMap.add n (define_global n init the_module( m in
-  List.fold_left global_var StringMap.empty globals;;
-
-let codegen_library_functions () = 
-     
-  let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
-  let printf_func = L.declare_function "printf" printf_t the_module in
-
-  let thread_t = L.function_type i32_t[| ptr_t; ptr_t|] in
-  let thread_func = L.declare_function "init_thread" thread_t the_module 
-
-  (* Define each function (arguments and return type) so we can call it *)
-  let function_decls =
-    let function_decl m fdecl =
-      let name = fdecl.A.fname
-      and formal_types =
-	Array.of_list (List.map (fun (t,_) -> ltype_of_typ t) fdecl.A.formals)
-      in let ftype = L.function_type (ltype_of_typ fdecl.A.typ) formal_types in
-      StringMap.add name (L.define_function name ftype the_module, fdecl) m in
-    List.fold_left function_decl StringMap.empty functions in
-  
-  (* Fill in the body of the given function *)
-  let build_function_body fdecl =
-    let (the_function, _) = StringMap.find fdecl.A.fname function_decls in
-    let builder = L.builder_at_end context (L.entry_block the_function) in
-
-    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
-    
-    (* Construct the function's "locals": formal arguments and locally
-       declared variables.  Allocate each on the stack, initialize their
-       value, if appropriate, and remember their values in the "locals" map *)
-    let local_vars =
-      let add_formal m (t, n) p = L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
-	ignore (L.build_store p local builder);
-	StringMap.add n local m in
-
-      let add_local m (t, n) =
-	let local_var = L.build_alloca (ltype_of_typ t) n builder
-	in StringMap.add n local_var m in
-
-      let formals = List.fold_left2 add_formal StringMap.empty fdecl.A.formals
-          (Array.to_list (L.params the_function)) in
-      List.fold_left add_local formals fdecl.A.locals in
-
-    (* Return the value for a variable or formal argument *)
-    let lookup n = try StringMap.find n local_vars
-                 with Not_found -> try StringMap.find n global_vars
-                 with Not_found -> raise (Failure ("undeclared variable " ^ n));;
- 
-*)
-
-
-
-
 module L = Llvm
 module A = Ast
 
@@ -107,11 +10,8 @@ let translate (globals, functions) =
   and i8_t   = L.i8_type   context 
   and i1_t   = L.i1_type   context
   and void_t = L.void_type context
-  and ptr_t  = L.pointer_type (L.i8_type (context)) in
-(*let llmem = Llvm.MemoryBuffer.of_file "bindings.ll" in
-let llm = Llvm_bitreader.parse_bitcode context llmem in
-ignore (Llvm_linker.link_modules the_module llm) *)
-
+  and ptr_t  = L.pointer_type (L.i8_type (context)) 
+  in
   let ltype_of_typ = function
       A.Int -> i32_t
     | A.Bool -> i1_t
@@ -125,11 +25,12 @@ ignore (Llvm_linker.link_modules the_module llm) *)
     List.fold_left global_var StringMap.empty globals in
 
   (* Declare printf(), which the print built-in function will call *)
-  let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+  let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
-  let thread_t = L.function_type void_t [| ptr_t; ptr_t; i32_t|] in
-  let thread_func = L.declare_function "thread_init" thread_t the_module in
+  let param_ty = L.function_type ptr_t [| ptr_t |] in
+  let thread_t = L.function_type void_t [| param_ty; i32_t; i32_t|] in
+  let thread_func = L.declare_function "init_thread" thread_t the_module in
 
 
   (* Define each function (arguments and return type) so we can call it *)
@@ -209,13 +110,19 @@ ignore (Llvm_linker.link_modules the_module llm) *)
 	    "printf" builder
       | A.Call ("print", [e])->
                 L.build_call printf_func [| (expr builder e) |] "printf" builder
-      | A.Call ("thread", [e])->
+      | A.Call ("init_thread", [e])->
+
+	let evald_expr_list = List.map (expr builder)[e] in
+	let target_func_llvalue = List.hd evald_expr_list in
+	let remaining_list = List.tl evald_expr_list in
+	let new_arg_list = target_func_llvalue :: remaining_list in
+	let new_arg_arr = Array.of_list new_arg_list in
 		L.build_call thread_func
-                [| (expr builder e) |]
-(*
-                [| ((L.lookup_function (expr builder e) the_module) ;
-                (expr build (List.tl e))) |]
-*)
+(*                [| (expr builder e) |] *)
+		new_arg_arr	
+(*                [| ((L.lookup_function (expr builder e) the_module) ;
+                (expr build (List.tl e))) |] *)
+
                 "init_thread" builder
       | A.Call (f, act) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
