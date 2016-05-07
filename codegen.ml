@@ -7,7 +7,7 @@ let translate (globals, functions) =
   let context = L.global_context () in
   let the_module = L.create_module context "MicroC" 
   and i32_t  = L.i32_type  context 
-  and i8_t   = L.i8_type   context 
+(*  and i8_t   = L.i8_type   context *)
   and i1_t   = L.i1_type   context
   and void_t = L.void_type context
   and ptr_t  = L.pointer_type (L.i8_type (context)) 
@@ -108,23 +108,28 @@ let translate (globals, functions) =
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
-      | A.Call ("print", [e])->
-                L.build_call printf_func [| (expr builder e) |] "printf" builder
-      | A.Call ("init_thread", [e])->
-
-	let evald_expr_list = List.map (expr builder)[e] in
+     | A.Call ("print", [e])->
+	print_string "hi from print\n";        
+        L.build_call printf_func [| (expr builder e) |] "printf" builder
+     | A.Call ("thread", e)->
+	print_string "hi from thread\n";
+	
+(*	L.build_call printf_func [| int_format_str ; L.const_int i32_t 8 |] "printf" builder	*)
+	let evald_expr_list = List.map (expr builder)e in
 	let target_func_llvalue = List.hd evald_expr_list in
 	let remaining_list = List.tl evald_expr_list in
 	let new_arg_list = target_func_llvalue :: remaining_list in
 	let new_arg_arr = Array.of_list new_arg_list in
+	print_string "right place!\n";
 		L.build_call thread_func
-(*                [| (expr builder e) |] *)
 		new_arg_arr	
-(*                [| ((L.lookup_function (expr builder e) the_module) ;
-                (expr build (List.tl e))) |] *)
-
                 "init_thread" builder
-      | A.Call (f, act) ->
+     | A.Call (f, act) ->
+	print_string "wrong place!\n";
+	print_string f;
+	print_string "\n";
+	print_string (string_of_bool (f = "thread"));
+	print_string "\n";
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
 	 let result = (match fdecl.A.typ with A.Void -> ""
