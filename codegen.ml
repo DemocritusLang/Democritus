@@ -32,8 +32,8 @@ let translate (globals, functions, structs) =
 	| 	A.Bool -> i1_t
  	|	A.Void -> void_t
 	| 	A.StructType s ->  Hashtbl.find struct_types s
-	|	A.MyString -> ptr_t in 
-
+	|	A.MyString -> ptr_t 
+	| 	A.Voidstar -> ptr_t in
 	let populate_struct_type sdecl = 
 		let struct_t = Hashtbl.find struct_types sdecl.A.sname in
 		let type_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.sformals) in
@@ -65,8 +65,9 @@ let translate (globals, functions, structs) =
     | A.Bool -> i1_t
     | A.Void -> void_t
     | A.MyString -> ptr_t
-    | A.Voidstar -> ptr_t in
-      (* Declare each global variable; remember its value in a map *)
+    | A.Voidstar -> ptr_t 
+    | A.StructType s -> Hashtbl.find struct_types s in
+    (* Declare each global variable; remember its value in a map *)
   let global_vars =
     let global_var m (t, n) =
       let init = L.const_int (ltype_of_typ t) 0
