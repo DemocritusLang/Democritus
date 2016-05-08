@@ -22,7 +22,8 @@ let void_star = pointer_type i8_t;;
 
 (* void pointers *)
 	let param_ty = function_type void_star [| void_star |] in
-	let thread_ty = function_type void_t [| param_ty; i32_t; i32_t |] in
+	let param_ptr = pointer_type param_ty in 
+	let thread_ty = function_type void_t [| param_ptr; i32_t; i32_t |] in
 	let thread_func = declare_function "init_thread" thread_ty the_module in
 (* define is same as C++ define- header syntax: declare , define: actually put body of fn in *)
 	let sayhello_ty = function_type void_star [|void_star|] in
@@ -35,7 +36,7 @@ let void_star = pointer_type i8_t;;
 (*	let string_llvalue = build_global_stringptr "hello" "tmp" sayhello_builder in *)
 (*	let sptr = build_alloca void_star "tmp" builder in*)
 (*	let string_llvalue = build_store string_llvalue sptr builder in*)
-	let sayhello_llvalue = build_call printf_llvalue [|string_ptr|] "result" sayhello_builder in
+	let sayhello_llvalue = build_call printf_llvalue [|string_ptr|] "" sayhello_builder in
 	let sayhello_ret = build_ret (const_pointer_null void_star) sayhello_builder in
 (*	and codegen_func_call fname el d llbuilder = 
 	let f = func_lookup fname in
@@ -48,7 +49,10 @@ in*)
 	let f = define_function "main" fty the_module in     
 	let llbuilder = builder_at_end context (entry_block f) in (* get the instr builder for main *)
 
-	let main_llvalue = build_call thread_func [|sayhello_llvalue; const_int i32_t 0; const_int i32_t 8|] "result" llbuilder 
+	let main_llvalue = build_call thread_func [|sayhello_func; const_int i32_t 0; const_int i32_t 8|] "" llbuilder 
+	in let main_ret = build_ret (const_int i32_t 0) llbuilder 
+
+(*let main_llvalue = build_call sayhello_llvalue [| undef void_star |] "main" llbuilder *)
 (*	let string_llvalue = build_global_stringptr "hello" "tmp" llbuilder  in 
 	let main_llvalue = build_call printf_llvalue [| string_llvalue |] "result" llbuilder  *)
 in	
