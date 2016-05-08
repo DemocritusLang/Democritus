@@ -15,7 +15,8 @@ let translate (globals, functions) =
       A.Int -> i32_t
     | A.Bool -> i1_t
     | A.Void -> void_t
-    | A.MyString -> ptr_t in 
+    | A.MyString -> ptr_t  
+    | A.Voidstar -> ptr_t in 
       (* Declare each global variable; remember its value in a map *)
   let global_vars =
     let global_var m (t, n) =
@@ -27,8 +28,11 @@ let translate (globals, functions) =
   let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
+  let default_t = L.function_type ptr_t [|ptr_t|] in
+  let default_func = L.declare_function "default_start_routine" default_t the_module in
+
   let param_ty = L.function_type ptr_t [| ptr_t |] in (* a function that returns void_star and takes as argument void_star *)
-  let thread_t = L.function_type void_t [| param_ty; i32_t; i32_t|] in (*a function that returns void and takes (above) and 2 ints *)
+  let thread_t = L.function_type void_t [| param_ty; ptr_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
   let thread_func = L.declare_function "init_thread" thread_t the_module in
 
 
@@ -110,16 +114,18 @@ let translate (globals, functions) =
      | A.Call ("print", [e])->
         L.build_call printf_func [| (expr builder e) |] "printf" builder
      | A.Call ("thread", e)->
-	
 (*	L.build_call printf_func [| int_format_str ; L.const_int i32_t 8 |] "printf" builder	*)
 	let evald_expr_list = List.map (expr builder)e in
-	let target_func_strptr = List.hd evald_expr_list in
-	let target_func_str = L.string_of_llvalue target_func_strptr in
+(*	let target_func_strptr = List.hd evald_expr_list in  (* jsut get the string by doing List.hd on e *)
+	let target_func_str = L.string_of_llvalue target_func_strptr in *)
+	let get_string v = match v with
+		| A.MyStringLit i -> i in
+	let target_func_str = get_string (List.hd e) in
 	(*let target_func_str = Option.default "" Some(target_func_str_opt) in *)
 	let target_func_llvalue_opt = L.lookup_function target_func_str the_module in
 	let deopt x = match x with
 		|Some f -> f
-		| None -> printf_func in
+		| None -> default_func in
 	let target_func_llvalue = deopt target_func_llvalue_opt in
 	let remaining_list = List.tl evald_expr_list in
 	let new_arg_list = target_func_llvalue :: remaining_list in

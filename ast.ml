@@ -6,7 +6,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Void | MyString
+type typ = Int | Bool | Void | MyString | Voidstar
 
 type bind = typ * string
 
@@ -91,7 +91,7 @@ let string_of_typ = function
   | Bool -> "bool"
   | Void -> "void"
   | MyString -> "string"
-
+  | Voidstar -> "voidstar"
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
 let string_of_fdecl fdecl =

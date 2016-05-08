@@ -8,7 +8,7 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS TIMES DIVIDE ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION
+%token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION VOIDSTAR
 %token <string> STRING
 %token <int> LITERAL
 %token <string> ID
@@ -59,7 +59,7 @@ typ:
   | BOOL { Bool }
   | VOID { Void }
   | STRTYPE { MyString }
-
+  | VOIDSTAR { Voidstar }
 vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
@@ -91,7 +91,7 @@ expr:
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | ID               { Id($1) }
-  | STRING	     { MyStringLit($1) } 
+  |STRING	     { MyStringLit($1) } 
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
