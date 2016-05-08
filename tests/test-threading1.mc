@@ -9,7 +9,6 @@ function sayhello(noop starvoid) starvoid
 
 function main() int
 {
-    let x starvoid;
-    thread("sayhello", x, 5);
+    thread("sayhello", 0, 5);
     return 0;
 }

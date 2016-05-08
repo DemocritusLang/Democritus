@@ -32,7 +32,8 @@ let translate (globals, functions) =
   let default_func = L.declare_function "default_start_routine" default_t the_module in
 
   let param_ty = L.function_type ptr_t [| ptr_t |] in (* a function that returns void_star and takes as argument void_star *)
-  let thread_t = L.function_type void_t [| param_ty; ptr_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
+let param_ptr = L.pointer_type param_ty in  
+let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
   let thread_func = L.declare_function "init_thread" thread_t the_module in
 
 
@@ -132,7 +133,7 @@ let translate (globals, functions) =
 	let new_arg_arr = Array.of_list new_arg_list in
 		L.build_call thread_func
 		new_arg_arr	
-                "init_thread" builder
+                "" builder
      | A.Call (f, act) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
