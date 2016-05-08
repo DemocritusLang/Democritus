@@ -120,7 +120,8 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 (*	let target_func_strptr = List.hd evald_expr_list in  (* jsut get the string by doing List.hd on e *)
 	let target_func_str = L.string_of_llvalue target_func_strptr in *)
 	let get_string v = match v with
-		| A.MyStringLit i -> i in
+		| A.MyStringLit i -> i 
+		| _ -> "" in
 	let target_func_str = get_string (List.hd e) in
 	(*let target_func_str = Option.default "" Some(target_func_str_opt) in *)
 	let target_func_llvalue_opt = L.lookup_function target_func_str the_module in
