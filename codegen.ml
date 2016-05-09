@@ -77,6 +77,19 @@ let translate (globals, functions, structs) =
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
+  
+  (* File I/O functions *)
+  let open_t = L.function_type i32_t [| ptr_t; i32_t |] in
+  let open_func = L.declare_function "open" open_t the_module in
+
+  let close_t = L.function_type i32_t [| i32_t |] in
+  let close_func = L.declare_function "close" close_t the_module in
+
+  let read_t = L.function_type i32_t [| i32_t; ptr_t; i32_t |] in
+  let read_func = L.declare_function "read" read_t the_module in
+
+  let write_t = L.function_type i32_t [| i32_t; ptr_t; i32_t |] in
+  let write_func = L.declare_function "write" write_t the_module in 
 
   let default_t = L.function_type ptr_t [|ptr_t|] in
   let default_func = L.declare_function "default_start_routine" default_t the_module in
