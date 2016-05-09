@@ -1,4 +1,4 @@
-(* MicroC by Stephen Edwards Columbia University *)
+(* Democritus, adapted from MicroC by Stephen Edwards Columbia University *)
 (* Top-level of the MicroC compiler: scan & parse the input,
    check the resulting AST, generate LLVM IR, and dump the module *)
 

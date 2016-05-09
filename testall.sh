@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Regression testing script for MicroC
+# Regression testing script for MicroC modified for use with Democritus
 # Step through a list of files
 #  Compile, run, and check the output of each expected-to-work test
 #  Compile and check the error of each expected-to-fail test
 
-MICROC="./microc.native"
+MICROC="./democritus.native"
 LLI="lli"
 
 # Set time limit for all operations
@@ -19,7 +19,7 @@ globalerror=0
 keep=0
 
 Usage() {
-    echo "Usage: testall.sh [options] [.mc files]"
+    echo "Usage: testall.sh [options] [.dem files]"
     echo "-k    Keep intermediate files"
     echo "-h    Print this help"
     exit 1
@@ -68,8 +68,8 @@ RunFail() {
 Check() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
-                             s/.mc//'`
-    reffile=`echo $1 | sed 's/.mc$//'`
+                             s/.dem//'`
+    reffile=`echo $1 | sed 's/.dem$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
     echo -n "$basename..."
@@ -102,8 +102,8 @@ v
 CheckFail() {
     error=0
     basename=`echo $1 | sed 's/.*\\///
-                             s/.mc//'`
-    reffile=`echo $1 | sed 's/.mc$//'`
+                             s/.dem//'`
+    reffile=`echo $1 | sed 's/.dem$//'`
     basedir="`echo $1 | sed 's/\/[^\/]*$//'`/."
 
     echo -n "$basename..."
@@ -148,7 +148,7 @@ if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="tests/test-*.mc tests/fail-*.mc"
+    files="tests/test-*.dem tests/fail-*.dem"
 fi
 
 for file in $files

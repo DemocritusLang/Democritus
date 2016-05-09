@@ -1,5 +1,5 @@
-/* MicroC by Stephen Edwards Columbia University */
-/* Ocamlyacc parser for MicroC */
+/* Democritus, adapted from MicroC by Stephen Edwards Columbia University */
+/* Ocamlyacc parser */
 
 %{
 open Ast;;
