@@ -36,7 +36,7 @@ let translate (globals, functions, structs) =
 	3. Define loop that goes over sdecls and adds them to map
 	4. Add loop to series of calls at end of translate
 *)
-	
+
 
 	let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 50 in
 
@@ -84,6 +84,7 @@ let translate (globals, functions, structs) =
 	in
 	List.fold_left handle_list StringMap.empty structs	
   in
+
 
   (* Declare each global variable; remember its value in a map *)
   let global_vars =
@@ -155,6 +156,15 @@ let translate (globals, functions, structs) =
 	|Some(s) -> s
     in
 
+
+
+
+    let global = ref (L.build_alloca i32_t "test" builder) in	
+
+
+
+
+
     (* Construct code for an expression; return its value *)
     let rec expr builder = function
 	A.Literal i -> L.const_int i32_t i
@@ -194,8 +204,12 @@ let translate (globals, functions, structs) =
 		let pointer_to_val = lookup s in
               
 		let temp_answer_val = L.build_struct_gep pointer_to_val index_number "tip" builder in
-		let answer_val = L.build_load (temp_answer_val) ("heretmp") builder		
-		in answer_val
+	(*	let _ = raise (Failure(L.string_of_llvalue temp_answer_val)) in *)
+		let _ =  global := temp_answer_val in
+		let answer_val = L.build_load (temp_answer_val) ("heretmp") builder in	
+
+(*		let _ = raise (Failure(L.string_of_llvalue answer_val)) in  *)
+		answer_val
 	
 	(*	let answer_val_string = string_option_to_string (L.struct_name (L.type_of answer_val)) in
 		if Hashtbl.mem struct_types answer_val_string 
@@ -251,6 +265,9 @@ let translate (globals, functions, structs) =
                     	 	with Not_found -> raise(Failure("_")) )
                  	|_ -> raise (Failure("StructType not found")) )
 		|_ as e1_expr ->
+			let e1'_OG = !global in
+			let e1'_OG_string = L.string_of_llvalue e1'_OG in
+		(*	let _ = raise (Failure(e1'_OG_string)) in *)
 			let e1' = expr builder e1_expr in
 			let e1'_lltype = L.type_of e1'  in
 			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
@@ -266,9 +283,11 @@ let translate (globals, functions, structs) =
 			let _ =  L.build_store e1' val_store builder in 
 			let _ = L.build_store val_store e1'_pointer_value builder in 
 			
-			let plz_val = L.build_load e1'_pointer_value "plz_val" builder in 
-			let pointer_to_struct_field = L.build_struct_gep plz_val index_number "in_assign" builder in
-			let _ = L.build_store e2' pointer_to_struct_field builder in
+			let plz_val = L.build_load e1'_pointer_value "plz_val" builder in
+			
+			let _ = raise (Failure((L.string_of_llvalue e1'_OG) ^ " " ^ (L.string_of_llvalue e1') ^  " " ^ (L.string_of_llvalue val_store) ^ " " ^ (L.string_of_llvalue plz_val))) in 
+			let pointer_to_struct_field = L.build_struct_gep e1'_OG index_number "in_assign" builder in
+			let _ = L.build_store e2' e1'_OG builder in
 			
 	(*		raise (Failure(L.string_of_llvalue pointer_to_struct_field))
 			; *) e2' 
@@ -280,6 +299,7 @@ let translate (globals, functions, structs) =
 
 
       | A.Assign (s, e) -> let e' = expr builder e in
+(*				let _ = raise (Failure(L.string_of_llvalue (lookup s))) in *)
 	                   ignore (L.build_store e' (lookup s) builder); e'
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
