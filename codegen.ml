@@ -77,7 +77,7 @@ let translate (globals, functions, structs) =
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
-  
+
   (* File I/O functions *)
   let open_t = L.function_type i32_t [| ptr_t; i32_t |] in
   let open_func = L.declare_function "open" open_t the_module in
@@ -204,15 +204,38 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
-     | A.Call ("print", [e])->
+ 
+  (* File I/O functions *)
+    | A.Call ("print", [e])->
         L.build_call printf_func [| (expr builder e) |] "printf" builder
-     | A.Call ("thread", e)->
+
+    | A.Call("open", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call open_func evald_expr_arr "open" builder
+
+    | A.Call("close", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+  	L.build_call close_func evald_expr_arr "close" builder
+
+    | A.Call("read", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call read_func evald_expr_arr "read" builder
+
+    | A.Call("write", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call write_func evald_expr_arr "write" builder
+
+    | A.Call ("thread", e)->
 (*	L.build_call printf_func [| int_format_str ; L.const_int i32_t 8 |] "printf" builder	*)
 	let evald_expr_list = List.map (expr builder)e in
 (*	let target_func_strptr = List.hd evald_expr_list in  (* jsut get the string by doing List.hd on e *)
 	let target_func_str = L.string_of_llvalue target_func_strptr in *)
 	let get_string v = match v with
-		| A.MyStringLit i -> i 
+		| A.MyStringLit i -> i
 		| _ -> "" in
 	let target_func_str = get_string (List.hd e) in
 	(*let target_func_str = Option.default "" Some(target_func_str_opt) in *)
