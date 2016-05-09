@@ -35,13 +35,12 @@ function main() int
   let test struct Test_Struct;
   let test_color struct Color;
  
-  a = 10;
-
-/*  test_color.red = 69; */
  
-/*  test.number = 10000000;
+  test_color.red = 69;
+ 
+  test.number = 10000000;
   test.color = test_color; 
-*/
+
   circle.extra_struct = test;
   circle.extra_struct.number = 42;
 

@@ -1,0 +1,78 @@
+; ModuleID = 'MicroC'
+
+%Circle = type <{ %Test_Struct, i32 }>
+%Test_Struct = type <{ i32, i1, %Color }>
+%Color = type <{ i32 }>
+
+@fmt = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+
+declare i32 @printf(i8*, ...)
+
+define i32 @main() {
+entry:
+  %a = alloca i32
+  %b = alloca i32
+  %c = alloca i32
+  %d = alloca i32
+  %circle = alloca %Circle
+  %test = alloca %Test_Struct
+  %test_color = alloca %Color
+  %t = alloca i32
+  %red = getelementptr inbounds %Color* %test_color, i32 0, i32 0
+  store i32 69, i32* %red
+  %number = getelementptr inbounds %Test_Struct* %test, i32 0, i32 0
+  store i32 10000000, i32* %number
+  %test_color1 = load %Color* %test_color
+  %color = getelementptr inbounds %Test_Struct* %test, i32 0, i32 2
+  store %Color %test_color1, %Color* %color
+  %test2 = load %Test_Struct* %test
+  %extra_struct = getelementptr inbounds %Circle* %circle, i32 0, i32 0
+  store %Test_Struct %test2, %Test_Struct* %extra_struct
+  %tip = getelementptr inbounds %Circle* %circle, i32 0, i32 0
+  %tip3 = getelementptr inbounds %Circle* %circle, i32 0, i32 0
+  %heretmp = load %Test_Struct* %tip3
+  %assign_val_store = alloca %Test_Struct
+  %pointer_val = alloca %Test_Struct*
+  store %Test_Struct %heretmp, %Test_Struct* %assign_val_store
+  store %Test_Struct* %assign_val_store, %Test_Struct** %pointer_val
+  %plz_val = load %Test_Struct** %pointer_val
+  %in_assign = getelementptr inbounds %Test_Struct* %tip, i32 0, i32 0
+  store i32 42, i32* %in_assign
+  %tip4 = getelementptr inbounds %Circle* %circle, i32 0, i32 0
+  %heretmp5 = load %Test_Struct* %tip4
+  %val_store = alloca %Test_Struct
+  %pointer_val6 = alloca %Test_Struct*
+  store %Test_Struct %heretmp5, %Test_Struct* %val_store
+  store %Test_Struct* %val_store, %Test_Struct** %pointer_val6
+  %plz_val7 = load %Test_Struct** %pointer_val6
+  %in_dotop = getelementptr inbounds %Test_Struct* %val_store, i32 0, i32 2
+  %temp = load %Color* %in_dotop
+  %val_store8 = alloca %Color
+  %pointer_val9 = alloca %Color*
+  store %Color %temp, %Color* %val_store8
+  store %Color* %val_store8, %Color** %pointer_val9
+  %plz_val10 = load %Color** %pointer_val9
+  %in_dotop11 = getelementptr inbounds %Color* %val_store8, i32 0, i32 0
+  %temp12 = load i32* %in_dotop11
+  store i32 %temp12, i32* %a
+  %tip13 = getelementptr inbounds %Circle* %circle, i32 0, i32 0
+  %heretmp14 = load %Test_Struct* %tip13
+  %val_store15 = alloca %Test_Struct
+  %pointer_val16 = alloca %Test_Struct*
+  store %Test_Struct %heretmp14, %Test_Struct* %val_store15
+  store %Test_Struct* %val_store15, %Test_Struct** %pointer_val16
+  %plz_val17 = load %Test_Struct** %pointer_val16
+  %in_dotop18 = getelementptr inbounds %Test_Struct* %val_store15, i32 0, i32 0
+  %temp19 = load i32* %in_dotop18
+  store i32 %temp19, i32* %b
+  %tip20 = getelementptr inbounds %Test_Struct* %test, i32 0, i32 0
+  %heretmp21 = load i32* %tip20
+  store i32 %heretmp21, i32* %c
+  %a22 = load i32* %a
+  %printf = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @fmt, i32 0, i32 0), i32 %a22)
+  %b23 = load i32* %b
+  %printf24 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @fmt, i32 0, i32 0), i32 %b23)
+  %c25 = load i32* %c
+  %printf26 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @fmt, i32 0, i32 0), i32 %c25)
+  ret i32 0
+}

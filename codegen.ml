@@ -159,11 +159,28 @@ let translate (globals, functions, structs) =
 
 
 
-    let global = ref (L.build_alloca i32_t "test" builder) in	
+    let global = L.build_alloca i32_t "t" builder in	
 
 
-
-
+    let test_func builder = function 
+     
+    A.Dotop(e1, field) -> (*let e' = expr builder e1 in*)
+      (match e1 with
+          A.Id s -> let etype = fst( 
+                try
+                    List.find (fun t->snd(t)=s) fdecl.A.locals
+                with Not_found -> raise (Failure("Unable to find" ^ s)))
+                in
+            (match etype with
+              A.StructType t-> 
+		let index_number_list = StringMap.find t struct_field_index_list in
+		let index_number = StringMap.find field index_number_list in
+		let pointer_to_val = lookup s in
+              
+		let temp_answer_val = L.build_struct_gep pointer_to_val index_number "tip" builder in
+		temp_answer_val
+	    )
+      ) in
 
     (* Construct code for an expression; return its value *)
     let rec expr builder = function
@@ -205,7 +222,7 @@ let translate (globals, functions, structs) =
               
 		let temp_answer_val = L.build_struct_gep pointer_to_val index_number "tip" builder in
 	(*	let _ = raise (Failure(L.string_of_llvalue temp_answer_val)) in *)
-		let _ =  global := temp_answer_val in
+	(*	let _ =  global := temp_answer_val in *)
 		let answer_val = L.build_load (temp_answer_val) ("heretmp") builder in	
 
 (*		let _ = raise (Failure(L.string_of_llvalue answer_val)) in  *)
@@ -265,7 +282,11 @@ let translate (globals, functions, structs) =
                     	 	with Not_found -> raise(Failure("_")) )
                  	|_ -> raise (Failure("StructType not found")) )
 		|_ as e1_expr ->
-			let e1'_OG = !global in
+
+
+			let e1'_OG = test_func builder e1_expr in
+
+		(*	let e1'_OG = !global in *)
 			let e1'_OG_string = L.string_of_llvalue e1'_OG in
 		(*	let _ = raise (Failure(e1'_OG_string)) in *)
 			let e1' = expr builder e1_expr in
@@ -285,9 +306,9 @@ let translate (globals, functions, structs) =
 			
 			let plz_val = L.build_load e1'_pointer_value "plz_val" builder in
 			
-			let _ = raise (Failure((L.string_of_llvalue e1'_OG) ^ " " ^ (L.string_of_llvalue e1') ^  " " ^ (L.string_of_llvalue val_store) ^ " " ^ (L.string_of_llvalue plz_val))) in 
-			let pointer_to_struct_field = L.build_struct_gep e1'_OG index_number "in_assign" builder in
-			let _ = L.build_store e2' e1'_OG builder in
+(*			let _ = raise (Failure((L.string_of_llvalue e1'_OG) ^ " " ^ (L.string_of_llvalue e1') ^  " " ^ (L.string_of_llvalue val_store) ^ " " ^ (L.string_of_llvalue plz_val))) in 
+*)			let pointer_to_struct_field = L.build_struct_gep e1'_OG index_number "in_assign" builder in
+			let _ = L.build_store e2' pointer_to_struct_field builder in
 			
 	(*		raise (Failure(L.string_of_llvalue pointer_to_struct_field))
 			; *) e2' 
