@@ -85,20 +85,52 @@ let check (globals, functions, structs) =
   if List.mem "thread" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function thread may not be defined")) else ();
 
+  if List.mem "malloc" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function malloc may not be defined")) else ();
+
+  if List.mem "open" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function open may not be defined")) else ();
+
+  if List.mem "close" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function close may not be defined")) else ();
+
+  if List.mem "read" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function read may not be defined")) else ();
+
+  if List.mem "write" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function write may not be defined")) else ();
+
   report_duplicate (fun n -> "duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
 
   (* Function declaration for a named function *)
   let built_in_decls_funcs = [
+      (*decls for print_int *)
       { typ = Void; fname = "print_int"; formals = [(Int, "x")];
       locals = []; body = [] };
+
+      (*decls for printb *)
       { typ = Void; fname = "printb"; formals = [(Bool, "x")];
       locals = []; body = [] }; 
-      { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] }]
+
+      (*decls for thread *)
+      { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] };
+
+
+      { typ = MyString; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] };
+
+      { typ = Int; fname = "open"; formals = [(MyString, "name"); (Int, "flags")]; locals = []; body = [] };
+
+      { typ = Int; fname = "close"; formals = [(Int, "fd")]; locals = []; body = [] };
+
+      { typ = Int; fname = "read"; formals = [(Int, "fd"); (MyString, "buf"); (Int, "count")]; locals = []; body = [] };
+
+      { typ = Int; fname = "write"; formals =  [(Int, "fd"); (MyString, "buf"); (Int, "count")]; locals = []; body = [] }
+]
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "thread"]
+ let built_in_decls_names = [ "print_int"; "printb"; "thread"; "malloc"; "open"; "close"; "read"; "write"]
 
   in
 
