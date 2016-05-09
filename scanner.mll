@@ -1,5 +1,5 @@
-(* MicroC by Stephen Edwards Columbia University *)
-(* Ocamllex scanner for MicroC *)
+(* Democritus, adapted from MicroC by Stephen Edwards Columbia University *)
+(* Ocamllex scanner *)
 
 { open Parser }
 

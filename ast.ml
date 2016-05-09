@@ -1,4 +1,4 @@
-(* MicroC by Stephen Edwards Columbia University *)
+(* Democritus, adapted from MicroC by Stephen Edwards Columbia University *)
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |

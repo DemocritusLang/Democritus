@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Regression testing script for MicroC
+# Regression testing script for MicroC modified for use with Democritus
 # Step through a list of files
 #  Compile, run, and check the output of each expected-to-work test
 #  Compile and check the error of each expected-to-fail test
 
-MICROC="./microc.native"
+MICROC="./democritus.native"
 LLI="lli"
 
 # Set time limit for all operations

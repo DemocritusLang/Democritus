@@ -1,19 +1,19 @@
-	(* MicroC by Stephen Edwards Columbia University *)
-	(* Semantic checking for the MicroC compiler *)
+(* Democritus, adapted from MicroC by Stephen Edwards Columbia University *)
+(* Semantic checking for compiler *)
 
-	open Ast
-      
-	module StringMap = Map.Make(String)
-	module StringSet = Set.Make(String)
+open Ast
 
-	(* Semantic checking of a program. Returns void if successful,
-   throws an exception if something is wrong.
+module StringMap = Map.Make(String)
+module StringSet = Set.Make(String)
 
-   Check each global variable, then check each function *)
+(* Semantic checking of a program. Returns void if successful,
+throws an exception if something is wrong.
+
+Check each global variable, then check each function *)
 
 let check (globals, functions, structs) =
 
-  (* Raise an exception if the given list has a duplicate *)
+(* Raise an exception if the given list has a duplicate *)
   let report_duplicate exceptf list =
     let rec helper = function
 	n1 :: n2 :: _ when n1 = n2 -> raise (Failure (exceptf n1))
