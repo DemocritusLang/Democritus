@@ -162,7 +162,7 @@ let translate (globals, functions, structs) =
     let global = L.build_alloca i32_t "t" builder in	
 
 
-    let test_func builder = function 
+    let rec test_func builder = function 
      
     A.Dotop(e1, field) -> (*let e' = expr builder e1 in*)
       (match e1 with
@@ -171,7 +171,7 @@ let translate (globals, functions, structs) =
                     List.find (fun t->snd(t)=s) fdecl.A.locals
                 with Not_found -> raise (Failure("Unable to find" ^ s)))
                 in
-            (match etype with
+            (try match etype with
               A.StructType t-> 
 		let index_number_list = StringMap.find t struct_field_index_list in
 		let index_number = StringMap.find field index_number_list in
@@ -179,11 +179,36 @@ let translate (globals, functions, structs) =
               
 		let temp_answer_val = L.build_struct_gep pointer_to_val index_number "tip" builder in
 		temp_answer_val
-	    )
-      ) in
+	    
+		 | _ -> raise (Failure("No structype.")) 
+              with Not_found -> raise (Failure("unable to find" ^s)) 
+            )
+      	|_ as e1_expr ->
+	let e1'_OG = test_func builder e1_expr in
+	let e1' = expr builder e1_expr in
+	let e1'_lltype = L.type_of e1'  in
+	let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+	let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+	let index_number_list = (StringMap.find e1'_struct_name_string struct_field_index_list) in
+	let index_number = StringMap.find field index_number_list in
+	
+	let e1'_pointer_type = L.pointer_type e1'_lltype in 
+
+	let val_store = L.build_alloca e1'_lltype "val_store" builder in
+	let e1'_pointer_value = L.build_alloca e1'_pointer_type "pointer_val" builder in
+
+	let _ =  L.build_store e1' val_store builder in
+	let _ = L.build_store val_store e1'_pointer_value builder in
+
+	let plz_val = L.build_load e1'_pointer_value "plz_val" builder in
+
+	L.build_struct_gep e1'_OG index_number "in_dotop" builder
+      )
+
+   and
 
     (* Construct code for an expression; return its value *)
-    let rec expr builder = function
+    expr builder = function
 	A.Literal i -> L.const_int i32_t i
 (*      | A.MyStringLit str -> L.const_stringz context str *)
       | A.MyStringLit str -> L.build_global_stringptr str "tmp" builder
@@ -237,6 +262,9 @@ let translate (globals, functions, structs) =
               with Not_found -> raise (Failure("unable to find" ^s)) 
             )
       	|_ as e1_expr ->
+
+
+	let e1'_OG = test_func builder e1_expr in
 	let e1' = expr builder e1_expr in
 	let e1'_lltype = L.type_of e1'  in
 	let e1'_struct_name_string_option = L.struct_name e1'_lltype in
@@ -254,7 +282,7 @@ let translate (globals, functions, structs) =
 
 	let plz_val = L.build_load e1'_pointer_value "plz_val" builder in
 
-	L.build_load(L.build_struct_gep val_store index_number "in_dotop" builder) "temp" builder	
+	L.build_load(L.build_struct_gep e1'_OG index_number "in_dotop" builder) "temp" builder	
       )
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
