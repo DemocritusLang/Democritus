@@ -1,0 +1,21 @@
+function main() int
+{
+  let a int;
+  let b int*;
+  let c int;
+
+  a = 1;
+  b = &a;
+
+  print_int(a);
+ 
+  c = *b;
+  print_int(c);
+
+  a = a + 1;
+ 
+  c = *b;
+  print_int(c);
+ 
+  return 0;
+}

@@ -207,7 +207,11 @@ let check (globals, functions, structs) =
 	 (match op with
 	   Neg when t = Int -> Int
 	 | Not when t = Bool -> Bool
-         | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
+         | Deref -> (match t with
+		PointerType s -> s
+		| _ -> raise (Failure("cannot dereference a " ^ string_of_typ t)) )
+         | Ref -> PointerType(t) 
+	 | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
       | SAssign(e1, field, e2) -> let lt = check_access (expr e1) (field)
