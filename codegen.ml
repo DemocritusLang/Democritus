@@ -83,7 +83,7 @@ let translate (globals, functions, structs) =
   let malloc_func = L.declare_function "malloc" malloc_t the_module in
 
   (* File I/O functions *)
-  let open_t = L.function_type i32_t [| ptr_t; i32_t |] in
+  let open_t = L.function_type i32_t [| ptr_t; i32_t; i32_t |] in
   let open_func = L.declare_function "open" open_t the_module in
 
   let close_t = L.function_type i32_t [| i32_t |] in

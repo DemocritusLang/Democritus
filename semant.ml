@@ -119,7 +119,7 @@ let check (globals, functions, structs) =
 
       { typ = MyString; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] };
 
-      { typ = Int; fname = "open"; formals = [(MyString, "name"); (Int, "flags")]; locals = []; body = [] };
+      { typ = Int; fname = "open"; formals = [(MyString, "name"); (Int, "flags"); (Int, "mode")]; locals = []; body = [] };
 
       { typ = Int; fname = "close"; formals = [(Int, "fd")]; locals = []; body = [] };
 
