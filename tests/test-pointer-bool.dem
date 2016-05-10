@@ -1,0 +1,21 @@
+function main() int
+{
+  let a bool;
+  let b *bool;
+  let c bool;
+
+  a = true;
+  b = &a;
+
+  printb(a);
+ 
+  c = *b;
+  printb(c);
+
+  a = !a;
+ 
+  c = *b;
+  printb(c);
+ 
+  return 0;
+}

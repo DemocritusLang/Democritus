@@ -22,13 +22,14 @@ let translate (globals, functions, structs) =
 		List.map add_empty_named_struct_types structs 
 	in
 
-	let ltype_of_typ = function
+	let rec ltype_of_typ = function
 		A.Int -> i32_t
 	| 	A.Bool -> i1_t
  	|	A.Void -> void_t
 	| 	A.StructType s ->  Hashtbl.find struct_types s
 	|	A.MyString -> ptr_t 
-	| 	A.Voidstar -> ptr_t in 
+	| 	A.Voidstar -> ptr_t 
+	|	A.PointerType t -> L.pointer_type (ltype_of_typ t) in 
 	let populate_struct_type sdecl = 
 		let struct_t = Hashtbl.find struct_types sdecl.A.sname in
 		let type_list = Array.of_list(List.map (fun(t, _) -> ltype_of_typ t) sdecl.A.sformals) in
@@ -149,7 +150,8 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 
     (* Construct code for an expression; return its value *)
     let rec llvalue_expr_getter builder = function
-	A.Dotop(e1, field) ->
+     	A.Id s -> lookup s
+	|A.Dotop(e1, field) ->
 		(match e1 with
 			A.Id s -> let etype = fst( 
 				try List.find (fun t->snd(t)=s) fdecl.A.locals
@@ -229,8 +231,18 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
 	  (match op with
-	    A.Neg     -> L.build_neg
-          | A.Not     -> L.build_not) e' "tmp" builder
+	    A.Neg     -> L.build_neg e' "tmp" builder
+          | A.Not     -> L.build_not e' "temp" builder
+	  | A.Deref -> let e_loaded = L.build_load e' "loaded_deref" builder in
+			e_loaded
+	  | A.Ref -> let e_llvalue = (llvalue_expr_getter builder e) in
+		e_llvalue
+	(*	let e_pointer = L.build_alloca (L.pointer_type (L.type_of e')) "tmp" builder in
+		let _ = L.build_store e_llvalue e_pointer builder in
+		e_pointer
+	*)
+	  )
+
       | A.SAssign(e1, field, e2) -> let e2' = expr builder e2 in
 	  (match e1 with
 		A.Id s -> let e1typ = fst(
