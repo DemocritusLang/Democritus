@@ -1,0 +1,35 @@
+struct Circle
+{
+	let radius int;
+	let extra_struct struct TestStruct;
+}
+
+struct TestStruct
+{
+	let number int;	
+	let color struct Color;
+}
+
+struct Color
+{
+	let color_number int;
+}	
+
+function main() int
+{
+	let a int;
+	let b int;
+	
+	let circle struct Circle;
+	
+
+	circle.extra_struct.number = 10;
+	circle.extra_struct.color.color_number = circle.extra_struct.number;
+
+	a = circle.extra_struct.color.color_number;
+	b = circle.extra_struct.number;
+
+	print_int(a);
+	print_int(b);
+}
+
