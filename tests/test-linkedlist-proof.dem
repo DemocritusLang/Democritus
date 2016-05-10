@@ -1,0 +1,52 @@
+struct LLNode
+{
+  let data struct Rectangle;
+  let next *struct LLNode;
+}
+
+struct Rectangle
+{
+  let width int;
+}
+
+function main() int
+{
+  let head *struct LLNode;
+  let node1 struct LLNode;
+  let node2 struct LLNode; 
+  let node3 struct LLNode;
+
+  let struct_holder struct LLNode;
+  let struct_pointer_holder *struct LLNode;
+  let print_num int;
+ 
+  //build up list
+  node1.data.width = 1;
+  head = &node1;  
+
+  node2.data.width = 2;
+  node2.next = head;
+  head = &node2;
+ 
+  node3.data.width = 3;
+  node3.next = head;
+  head = &node3;
+
+  //print list head to tail 
+  struct_holder = *(head);
+  print_num = struct_holder.data.width;
+  print_int(print_num);
+
+  struct_pointer_holder = struct_holder.next; 
+  struct_holder = *struct_pointer_holder;
+  print_num = struct_holder.data.width;
+  print_int(print_num);
+
+  struct_pointer_holder = struct_holder.next;
+  struct_holder = *struct_pointer_holder;
+  print_num = struct_holder.data.width;
+  print_int(print_num);
+
+
+  return 0;
+}
