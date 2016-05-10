@@ -85,6 +85,9 @@ let check (globals, functions, structs) =
   if List.mem "thread" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function thread may not be defined")) else ();
 
+  if List.mem "malloc" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function malloc may not be defined")) else ();
+
   if List.mem "open" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function open may not be defined")) else ();
 
@@ -113,6 +116,9 @@ let check (globals, functions, structs) =
       (*decls for thread *)
       { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] };
 
+
+      { typ = MyString; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] };
+
       { typ = Int; fname = "open"; formals = [(MyString, "name"); (Int, "flags")]; locals = []; body = [] };
 
       { typ = Int; fname = "close"; formals = [(Int, "fd")]; locals = []; body = [] };
@@ -124,7 +130,7 @@ let check (globals, functions, structs) =
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "thread"; "open"; "close"; "read"; "write"]
+ let built_in_decls_names = [ "print_int"; "printb"; "thread"; "malloc"; "open"; "close"; "read"; "write"]
 
   in
 
