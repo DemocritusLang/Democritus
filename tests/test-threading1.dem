@@ -1,7 +1,7 @@
 
-function sayhello(noop starvoid) starvoid
+function sayhello(noop *void) *void
 {
-    let x starvoid;
+    let x *void;
     print("hello!\n");
     return x;
 }

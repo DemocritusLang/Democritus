@@ -37,7 +37,7 @@ rule token = parse
 | "true"   { TRUE }
 | "string" { STRTYPE }
 | "struct" { STRUCT }
-| "starvoid"  {VOIDSTAR }
+| "*void"  {VOIDSTAR }
 | "false"  { FALSE }
 | "function" { FUNCTION }
 | "let"      { LET }
