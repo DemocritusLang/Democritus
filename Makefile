@@ -18,7 +18,7 @@ all : clean democritus.native
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff democritus scanner.ml parser.ml parser.mli
-	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.ll *.err *.bc
+	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.ll *.err *.bc *.out tests/*.txt
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
