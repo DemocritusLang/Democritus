@@ -64,13 +64,6 @@ let translate (globals, functions, structs) =
 	in
 	List.fold_left handle_list StringMap.empty structs	
   in
-(*  let ltype_of_typ = function
-      A.Int -> i32_t
-    | A.Bool -> i1_t
-    | A.Void -> void_t
-    | A.MyString -> ptr_t
-    | A.Voidstar -> ptr_t 
-    | A.StructType s -> Hashtbl.find struct_types s in *)
     (* Declare each global variable; remember its value in a map *)
   let global_vars =
     let global_var m (t, n) =
@@ -85,6 +78,9 @@ let translate (globals, functions, structs) =
   (* Declare malloc() *)
   let malloc_t = L.function_type ptr_t [| i32_t |] in
   let malloc_func = L.declare_function "malloc" malloc_t the_module in
+
+  let request_from_server_t = L.function_type ptr_t [| ptr_t; ptr_t |] in
+  let request_from_server_func = L.declare_function "request_from_server" request_from_server_t the_module in
 
   (* File I/O functions *)
   let open_t = L.function_type i32_t [| ptr_t; i32_t; i32_t |] in
@@ -363,6 +359,12 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 		L.build_call thread_func
 		new_arg_arr	
                 "" builder
+
+    | A.Call ("request_from_server", e) ->
+	let evald_expr_list = List.map (expr builder) e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call request_from_server_func evald_expr_arr "request_from_server" builder
+
      | A.Call (f, act) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let actuals = List.rev (List.map (expr builder) (List.rev act)) in
