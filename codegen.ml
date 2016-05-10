@@ -10,13 +10,8 @@ let translate (globals, functions, structs) =
   and i1_t   = L.i1_type   context
   and void_t = L.void_type context
   and ptr_t  = L.pointer_type (L.i8_type (context)) in
-(*	1. Define map at the beginning
-	2. Write get_type function that takes A.type -> ltype
-		a. In the case of struct, lookup in map
-	3. Define loop that goes over sdecls and adds them to map
-	4. Add loop to series of calls at end of translate
-*)
-	
+		
+
 	let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 50 in
 
         let add_empty_named_struct_types sdecl =
@@ -40,6 +35,11 @@ let translate (globals, functions, structs) =
 		L.struct_set_body struct_t type_list true
 	in 
     ignore(List.map populate_struct_type structs);
+  
+  let string_option_to_string = function
+	None -> ""
+	| Some(s) -> s
+  in
 	
   (*struct_field_index is a map where key is struct name and value is another map*)
   (*in the second map, the key is the field name and the value is the index number*)
@@ -148,7 +148,35 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
     in
 
     (* Construct code for an expression; return its value *)
-    let rec expr builder = function
+    let rec llvalue_expr_getter builder = function
+	A.Dotop(e1, field) ->
+		(match e1 with
+			A.Id s -> let etype = fst( 
+				try List.find (fun t->snd(t)=s) fdecl.A.locals
+				with Not_found -> raise (Failure("Unable to find" ^ s ^ "in dotop")))
+				in
+				(try match etype with
+					A.StructType t->
+						let index_number_list = StringMap.find t struct_field_index_list in
+						let index_number = StringMap.find field index_number_list in
+						let struct_llvalue = lookup s in
+						let access_llvalue = L.build_struct_gep struct_llvalue index_number "dotop_terminal" builder in
+						access_llvalue
+
+				| _ -> raise (Failure("No structype."))
+			 with Not_found -> raise (Failure("unable to find" ^ s)) )
+		| _ as e1_expr ->  let e1'_llvalue = llvalue_expr_getter builder e1_expr in
+			let loaded_e1' = expr builder e1_expr in
+			let e1'_lltype = L.type_of loaded_e1' in
+			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+			let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
+			let index_number = StringMap.find field index_number_list in
+			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_dotop" builder in
+			access_llvalue )
+	|_ -> raise (Failure ("in llvalue_expr_getter but not a dotop!"))
+    and
+    expr builder = function
 	A.Literal i -> L.const_int i32_t i
 (*      | A.MyStringLit str -> L.const_stringz context str *)
       | A.MyStringLit str -> L.build_global_stringptr str "tmp" builder
@@ -173,38 +201,62 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 	  | A.Geq     -> L.build_icmp L.Icmp.Sge
 	  ) e1' e2' "tmp" builder
     | A.Dotop(e1, field) -> let _ = expr builder e1 in
-      (match e1 with
-          A.Id s -> let etype = fst( 
-                try
-                    List.find (fun t->snd(t)=s) fdecl.A.locals
-                with Not_found -> raise (Failure("Unable to find" ^ s)))
-                in
-            (try match etype with
-              A.StructType t-> L.build_load (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder) "tmp" builder
-              | _ -> raise (Failure("No structype."))
-              with Not_found -> raise (Failure("unable to find" ^s))
-            )
-        | _ -> raise (Failure("Not a struct."))
-      )
+	 (match e1 with
+		A.Id s -> let etype = fst( 
+			try List.find (fun t->snd(t)=s) fdecl.A.locals
+			with Not_found -> raise (Failure("Unable to find" ^ s ^ "in dotop")))
+			in
+			(try match etype with
+				A.StructType t->
+					let index_number_list = StringMap.find t struct_field_index_list in
+					let index_number = StringMap.find field index_number_list in
+					let struct_llvalue = lookup s in
+					let access_llvalue = L.build_struct_gep struct_llvalue index_number "dotop_terminal" builder in
+					let loaded_access = L.build_load access_llvalue "loaded_dotop_terminal" builder in
+					loaded_access
+
+				| _ -> raise (Failure("No structype."))
+			 with Not_found -> raise (Failure("unable to find" ^ s)) )
+		| _ as e1_expr ->  let e1'_llvalue = llvalue_expr_getter builder e1_expr in
+			let loaded_e1' = expr builder e1_expr in
+			let e1'_lltype = L.type_of loaded_e1' in
+			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+			let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
+			let index_number = StringMap.find field index_number_list in
+			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_dotop" builder in
+			L.build_load access_llvalue "loaded_dotop" builder )
       | A.Unop(op, e) ->
 	  let e' = expr builder e in
 	  (match op with
 	    A.Neg     -> L.build_neg
           | A.Not     -> L.build_not) e' "tmp" builder
-      | A.SAssign(e1, field, e2) -> let e' = expr builder e2 in
-                      let _ = expr builder e1 in
-                      (match e1 with
-                        A.Id s -> let etype = fst(
-                        try 
-                          List.find (fun t -> snd(t) = s) fdecl.A.locals
-                        with Not_found -> raise (Failure("unable to find " ^ s))) in
-                         (match etype with
-                          A.StructType t -> 
-                            (try ignore ((L.build_store e' (L.build_struct_gep (lookup s) (StringMap.find field (StringMap.find t struct_field_index_list)) field builder)) builder); e'
-                            with Not_found -> raise (Failure("unable to find "^ t)))
-                          | _ -> raise (Failure("StructType not found.")))
-                        |_ -> raise (Failure("Structype not foundd."))
-                      )
+      | A.SAssign(e1, field, e2) -> let e2' = expr builder e2 in
+	  (match e1 with
+		A.Id s -> let e1typ = fst(
+			try List.find (fun t -> snd(t) = s) fdecl.A.locals
+			with Not_found -> raise(Failure("unable to find" ^ s ^ "in Sassign")))
+			in
+			(match e1typ with
+				A.StructType t -> (try 
+					let index_number_list = StringMap.find t struct_field_index_list in
+					let index_number = StringMap.find field index_number_list in
+					let struct_llvalue = lookup s in
+					let access_llvalue = L.build_struct_gep struct_llvalue index_number field builder in
+					(try (ignore(L.build_store e2' access_llvalue builder); e2')
+						with Not_found -> raise (Failure("unable to store " ^ t )) )
+					with Not_found -> raise (Failure("unable to find" ^ s)) )
+				| _ -> raise (Failure("StructType not found.")))
+		|_ as e1_expr -> let e1'_llvalue = llvalue_expr_getter builder e1_expr in 
+			let loaded_e1' = expr builder e1_expr in
+			let e1'_lltype = L.type_of loaded_e1' in
+			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+			let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
+			let index_number = StringMap.find field index_number_list in
+			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_Sassign" builder in
+			let _ = L.build_store e2' access_llvalue builder in
+			e2') 
 
       | A.Assign (s, e) -> let e' = expr builder e in
 	                   ignore (L.build_store e' (lookup s) builder); e'

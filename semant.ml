@@ -54,7 +54,10 @@ let check (globals, functions, structs) =
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
   let check_assign lvaluet rvaluet err =
-     if lvaluet == rvaluet then lvaluet else raise err
+	if (String.compare (string_of_typ lvaluet) (string_of_typ rvaluet)) == 0
+	then lvaluet
+	else raise err 
+     (*if lvaluet == rvaluet then lvaluet else raise err*)
   in
 
   let match_struct_to_accessor a b = 
@@ -221,7 +224,7 @@ let check (globals, functions, structs) =
 
       | Assign(var, e) as ex -> let lt = type_of_identifier var
                                 and rt = expr e in
-        check_assign (type_of_identifier var) (expr e)
+        check_assign (lt) (rt)
                  (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
                            string_of_typ rt ^ " in " ^ string_of_expr ex))
       | Call(fname, actuals) as call -> let fd = function_decl fname in
