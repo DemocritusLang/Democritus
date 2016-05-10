@@ -5,7 +5,8 @@
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
-| "/*"     { comment lexbuf }           (* Comments *)
+| "//"     { comment lexbuf }             (* Comments *)
+| "/*"     { multicomment lexbuf }           (* Multiline comments *)
 | '('      { LPAREN }
 | ')'      { RPAREN }
 | '{'      { LBRACE }
@@ -48,8 +49,12 @@ rule token = parse
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
 and comment = parse
+  "\n" { token lexbuf }
+  | _  { comment lexbuf }
+
+and multicomment = parse
   "*/" { token lexbuf }
-| _    { comment lexbuf }
+| _    { multicomment lexbuf }
 
 (* From: realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html *)
 and read_string buf =
