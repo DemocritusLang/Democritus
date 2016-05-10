@@ -1,0 +1,35 @@
+struct Rectangle
+{
+  let width int;
+  let height int;
+  let color struct Color;
+}
+
+struct Color
+{
+  let red bool;
+}
+
+function main() int
+{
+  let a struct Rectangle;
+  let b struct Rectangle*;
+  let c struct Rectangle;
+  let d bool;
+
+  a.color.red = true;
+  b = &a;
+  c = *b;
+
+  d = c.color.red;
+  printb(d);
+
+  c.color.red = false;
+  b = &c;
+  a = *b;
+  
+  d = a.color.red;
+  printb(d);
+
+  return 0;
+}

@@ -10,7 +10,7 @@ let third (_,_,c) = c;;
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
-%token PLUS MINUS TIMES DIVIDE ASSIGN NOT DOT
+%token PLUS MINUS STAR DIVIDE ASSIGN NOT DOT DEREF REF
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION STRUCT VOIDSTAR
 %token <string> STRING
@@ -20,14 +20,15 @@ let third (_,_,c) = c;;
 
 %nonassoc NOELSE
 %nonassoc ELSE
+%nonassoc POINTER
 %right ASSIGN
 %left OR
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIVIDE
-%right NOT NEG
+%left STAR DIVIDE
+%right NOT NEG DEREF REF
 %left DOT
 
 %start program
@@ -67,6 +68,8 @@ typ:
   | STRTYPE { MyString }
   | STRUCT ID { StructType ($2) }
   | VOIDSTAR { Voidstar }
+  | typ STAR %prec POINTER { PointerType ($1) }
+
 vdecl_list:
     /* nothing */    { [] }
   | vdecl_list vdecl { $2 :: $1 }
@@ -107,7 +110,7 @@ expr:
   |STRING	     { MyStringLit($1) } 
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
-  | expr TIMES  expr { Binop($1, Mult,  $3) }
+  | expr STAR  expr { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
   | expr NEQ    expr { Binop($1, Neq,   $3) }
@@ -120,6 +123,8 @@ expr:
   | expr DOT    ID   { Dotop($1, $3) }
   | expr DOT    ID ASSIGN expr { SAssign($1, $3, $5) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
+  | STAR expr %prec DEREF { Unop(Deref, $2) }
+  | REF expr { Unop(Ref, $2) }
   | NOT expr         { Unop(Not, $2) }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }

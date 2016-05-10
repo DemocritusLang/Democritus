@@ -4,9 +4,9 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or 
 
-type uop = Neg | Not
+type uop = Neg | Not | Deref | Ref
 
-type typ = Int | Bool | Void | MyString | StructType of string | Voidstar
+type typ = Int | Bool | Void | MyString | StructType of string | Voidstar | PointerType of typ
 
 type bind = typ * string
 
@@ -66,6 +66,8 @@ let string_of_op = function
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
+  | Deref -> "*"
+  | Ref -> "&"
 
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
@@ -96,13 +98,14 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_typ = function
+let rec string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Void -> "void"
   | MyString -> "string"
   | StructType(s) -> "struct" ^ s
   | Voidstar -> "voidstar"
+  | PointerType(s) -> "pointerof" ^ (string_of_typ s)
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

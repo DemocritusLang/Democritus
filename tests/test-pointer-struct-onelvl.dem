@@ -1,0 +1,22 @@
+struct Rectangle
+{
+  let width int;
+  let height int;
+}
+
+function main() int
+{
+  let a struct Rectangle;
+  let b struct Rectangle*;
+  let c struct Rectangle;
+  let d int;
+
+  a.width = 10;
+  b = &a;
+  c = *b;
+
+  d = c.width;
+  print_int(d);
+
+  return 0;
+}
