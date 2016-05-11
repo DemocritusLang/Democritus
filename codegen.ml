@@ -71,7 +71,12 @@ let translate (globals, functions, structs) =
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
 
-  (* Declare printf(), which the print built-in function will call *)
+  let append_strings_t = L.function_type void_t [| ptr_t; ptr_t |] in
+  let append_strings_func = L.declare_function "append_strings" append_strings_t the_module in
+
+  let int_to_string_t = L.function_type void_t [| i32_t; ptr_t |] in
+  let int_to_string_func = L.declare_function "int_to_string" int_to_string_t the_module in
+
   let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
@@ -81,12 +86,14 @@ let translate (globals, functions, structs) =
   let free_t = L.function_type void_t [| ptr_t |] in
   let free_func = L.declare_function "free" free_t the_module in
 
-  (* Declare malloc() *)
   let malloc_t = L.function_type ptr_t [| i32_t |] in
   let malloc_func = L.declare_function "malloc" malloc_t the_module in
 
   let request_from_server_t = L.function_type ptr_t [| ptr_t |] in
   let request_from_server_func = L.declare_function "request_from_server" request_from_server_t the_module in
+
+  let memset_t = L.function_type ptr_t [| ptr_t; i32_t; i32_t |] in
+  let memset_func = L.declare_function "memset" memset_t the_module in
 
   (* File I/O functions *)
   let open_t = L.function_type i32_t [| ptr_t; i32_t; i32_t |] in
@@ -112,7 +119,7 @@ let translate (globals, functions, structs) =
 
   let param_ty = L.function_type ptr_t [| ptr_t |] in (* a function that returns void_star and takes as argument void_star *)
 let param_ptr = L.pointer_type param_ty in  
-let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
+let thread_t = L.function_type void_t [| param_ptr; ptr_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
   let thread_func = L.declare_function "init_thread" thread_t the_module in
 
 
@@ -277,36 +284,8 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 	  )
       | A.Castop(ast_cast_type, e) ->
  		let cast_lltype = ltype_of_typ ast_cast_type in
-	(*	let cast_lltype_string = L.string_of_lltype cast_lltype in *)
 		let e_llvalue = expr builder e in
 		L.build_pointercast e_llvalue cast_lltype "plz" builder
-     (* | A.SAssign(e1, field, e2) -> let e2' = expr builder e2 in
-	  (match e1 with
-		A.Id s -> let e1typ = fst(
-			try List.find (fun t -> snd(t) = s) fdecl.A.locals
-			with Not_found -> raise(Failure("unable to find" ^ s ^ "in Sassign")))
-			in
-			(match e1typ with
-				A.StructType t -> (try 
-					let index_number_list = StringMap.find t struct_field_index_list in
-					let index_number = StringMap.find field index_number_list in
-					let struct_llvalue = lookup s in
-					let access_llvalue = L.build_struct_gep struct_llvalue index_number field builder in
-					(try (ignore(L.build_store e2' access_llvalue builder); e2')
-						with Not_found -> raise (Failure("unable to store " ^ t )) )
-					with Not_found -> raise (Failure("unable to find" ^ s)) )
-				| _ -> raise (Failure("StructType not found.")))
-		|_ as e1_expr -> let e1'_llvalue = llvalue_expr_getter builder e1_expr in 
-			let loaded_e1' = expr builder e1_expr in
-			let e1'_lltype = L.type_of loaded_e1' in
-			let e1'_struct_name_string_option = L.struct_name e1'_lltype in
-			let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
-			let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
-			let index_number = StringMap.find field index_number_list in
-			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_Sassign" builder in
-			let _ = L.build_store e2' access_llvalue builder in
-			e2') 
-	*)
       | A.Assign (lhs, e2) -> let e2' = expr builder e2 in
 			(match lhs with
 			A.Id s ->ignore (L.build_store e2' (lookup s) builder); e2'
@@ -359,24 +338,36 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
     | A.Call ("print", [e])->
         L.build_call printf_func [| (expr builder e) |] "printf" builder
 
+    | A.Call ("append_strings", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call append_strings_func evald_expr_arr "" builder
+
+    | A.Call ("int_to_string", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call int_to_string_func evald_expr_arr "" builder
+
+
+
     | A.Call ("exec_prog", e) ->
 	let evald_expr_list = List.map (expr builder)e in
 	let evald_expr_arr = Array.of_list evald_expr_list in
-	
 	L.build_call execl_func evald_expr_arr "exec_prog" builder
 
     | A.Call("free", e) ->
 	L.build_call free_func (Array.of_list (List.map (expr builder) e)) "" builder
 
-
     | A.Call ("malloc", e) ->
       	let evald_expr_list = List.map (expr builder)e in
 	let evald_expr_arr = Array.of_list evald_expr_list in
 	L.build_call malloc_func evald_expr_arr "malloc" builder
-(*
-    | A.Call ("malloc_type", e) ->
-	L.build_malloc e "malloc_type" builder
-*)
+
+    | A.Call ("memset", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call memset_func evald_expr_arr "memset" builder
+
   (* File I/O functions *)
     | A.Call("open", e) ->
 	let evald_expr_list = List.map (expr builder)e in

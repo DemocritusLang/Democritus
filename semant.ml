@@ -82,6 +82,12 @@ let check (globals, functions, structs) =
 
   (**** Checking Functions ****)
 
+  if List.mem "append_strings" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function append_strings may not be defined")) else ();
+
+  if List.mem "int_to_string" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function int_to_string may not be defined")) else ();
+
   if List.mem "print" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function print may not be defined")) else ();
 
@@ -118,6 +124,9 @@ let check (globals, functions, structs) =
  if List.mem "request_from_server" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function request_from_server may not be defined")) else ();
 
+  if List.mem "memset" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function memset may not be defined")) else ();
+
   report_duplicate (fun n -> "duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
 
@@ -132,12 +141,10 @@ let check (globals, functions, structs) =
       { typ = Void; fname = "print_float"; formals = [(Float, "x")];
       locals = []; body = [] }; 
 
-      { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] };
-     
+      { typ = Void; fname = "thread"; formals = [(MyString, "func"); (MyString, "arg"); (Int, "nthreads")]; locals = []; body = [] };
+
       { typ = MyString; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] };
 
-
-     
      (* { typ = DerefAndSet; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] }; *)
 
       { typ = Int; fname = "open"; formals = [(MyString, "name"); (Int, "flags"); (Int, "mode")]; locals = []; body = [] };
@@ -152,19 +159,25 @@ let check (globals, functions, structs) =
 
       { typ = Int; fname = "sleep"; formals =  [(Int, "seconds")]; locals = []; body = [] };
       
+      { typ = Int; fname = "memset"; formals =  [(MyString, "s"); (Int, "val"); (Int, "size")]; locals = []; body = [] };
+
       { typ = MyString; fname = "request_from_server"; formals = [(MyString, "link")]; locals = []; body = [] } 
 ;
 
       { typ = Int; fname = "exec_prog"; formals = [(MyString, "arg1"); (MyString, "arg2"); (MyString, "arg3") ]; locals = []; body = [] };
 
       { typ = Void; fname = "free"; formals = [(MyString, "tofree")]; locals = []; body = [] }
+;
 
+      { typ = Void; fname = "append_strings"; formals = [(MyString, "str1"); (MyString, "str2")]; locals = []; body = [] };
+ 
      
+      { typ = Void; fname = "int_to_string"; formals = [(Int, "n"); (MyString, "buf")]; locals = []; body = [] }
 ]
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep"; "request_from_server"; "exec_prog"; "free" ]
+ let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep"; "memset"; "request_from_server"; "exec_prog"; "free"; "append_strings"; "int_to_string" ]
 
   in
 
@@ -245,21 +258,7 @@ let check (globals, functions, structs) =
 	 | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
-(*      | SAssign(e1, field, e2) -> let lt = check_access (expr e1) (field)
-                                and rt = expr e2 in
-        check_assign (lt) (rt)
-                 (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
-                           string_of_typ rt ^ " in " ^ string_of_expr e2))
-      (*| SAssign(s, field, e2) -> let lt = type_of_identifier s
-                                and rt = expr e2 in 
-                                  let ltype = check_access (lt) (field)
-                                in  
-                                  check_assign (ltype) (rt) (Failure ("illegal assignment " ^ string_of_typ ltype ^
-  *)                                    " = " ^ string_of_typ rt ^ " in " ^ string_of_expr e2))*)
-
-
-
-     | Call(fname, actuals) as call -> let fd = function_decl fname in
+      | Call(fname, actuals) as call -> let fd = function_decl fname in
          if List.length actuals != List.length fd.formals then
            raise (Failure ("expecting " ^ string_of_int
              (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
@@ -270,8 +269,6 @@ let check (globals, functions, structs) =
                 " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
              fd.formals actuals;
            fd.typ
-   
-
       | Assign(e1, e2) as ex ->
 	(match e1 with
 		Id s -> 

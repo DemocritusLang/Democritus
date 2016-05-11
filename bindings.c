@@ -7,8 +7,18 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #define BUFSIZE 4096
 
+void append_strings(void *str1, void *str2)
+{
+    strcat((char *)str1, (char *)str2);
+}
+
+void int_to_string(int n, void *buf)
+{
+    sprintf(buf, "%d", n);
+}
 
 int exec_prog(void *str1, void *str2, void *str3)
 {
@@ -25,7 +35,7 @@ void *request_from_server(void *urlVoid)
 {
     // www.xkcd.com/index.html
     char *urlStr = (char *) urlVoid;
-    int idxslash = strrchr(urlStr, '/') - urlStr;
+    int idxslash = strchr(urlStr, '/') - urlStr;
     char *url = malloc(idxslash + 1);
     char *filePath = malloc(strlen(urlStr) - (idxslash) + 1);
     memset(url, 0, idxslash - 1);
@@ -80,7 +90,7 @@ void *request_from_server(void *urlVoid)
 
     // wrap the socket with a FILE* so that we can read the socket using fgets()
     FILE *fd;
-    if ((fd = fdopen(sock, "r")) == NULL) {
+    if ((fd = fdopen(sock, "rb")) == NULL) {
 	fprintf(stderr, "fdopen() failed.");
         exit(1);
     }
@@ -98,23 +108,30 @@ void *request_from_server(void *urlVoid)
 	fprintf(stderr, "request failed with status code %s.", recvbuf);
 	exit(1);
     }
-
     /* ignore remaining header lines */
     do {
+        memset(recvbuf, 0, BUFSIZE);
 	if (fgets(recvbuf, sizeof(recvbuf), fd) == NULL) {
             fprintf(stderr, "server terminated connection without sending file.");
             exit(1);
 	}
-    } while (strcmp("\n", recvbuf) != 0);
+    } while (strcmp("\r\n", recvbuf) != 0);
+
 
     char *filePathName = malloc(100);
     memset(filePathName, 0, 100);
-    strcat(filePathName, "tests/");
-    strcat(filePathName, fileName);
+    char *last_slash;
+    if ((last_slash = strrchr(filePath, '/')) != NULL) {
+        if (strlen(last_slash) == 1) {
+             strcpy(filePathName, "index.html");
+        } else {
+             strcpy(filePathName, last_slash + 1);
+        }
+    }
     
-
     /* open and read into file */
-    FILE *outputFile = fopen(filePathName, "w");
+    printf("%s\n", filePathName);
+    FILE *outputFile = fopen(filePathName, "wb");
     if (outputFile == NULL) {
 	fprintf(stderr, "fopen() failed.");
         exit(1);
@@ -122,13 +139,17 @@ void *request_from_server(void *urlVoid)
 
     size_t n;
     int total = 0;
-    while ((n = fread(recvbuf, 1, sizeof(recvbuf), fd)) > 0) {
+    memset(recvbuf, 0, BUFSIZE);
+    printf("buffer contents: %s\n", recvbuf);
+    while ((n = fread(recvbuf, 1, BUFSIZE, fd)) > 0) {
 	if (fwrite(recvbuf, 1, n, outputFile) != n) {
 	    fprintf(stderr, "fwrite() failed.");
             exit(1);
 	}
+        memset(recvbuf, 0, BUFSIZE);
 	total += n;
     }
+    fprintf(outputFile, "\n");
     fprintf(stderr, "total bytes written: %d\n", total);
     
     if (ferror(fd)) {
@@ -147,12 +168,12 @@ void *default_start_routine(void *arg)
     return arg;
 }
 
-void init_thread(void *(*start_routine) (void *), int arg, int nthreads)
+void init_thread(void *(*start_routine) (void *), void *arg, int nthreads)
 {
     pthread_t thread[nthreads];
     int i;
     for (i = 0; i < nthreads; i ++) {
-	pthread_create(&thread[i], NULL, start_routine, NULL);
+	pthread_create(&thread[i], NULL, start_routine, arg);
     }
 
     for (i = 0; i < nthreads; i++) {
