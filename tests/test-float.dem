@@ -1,0 +1,16 @@
+function main() int
+{
+  let a float;
+  let b float;
+  let c float;
+
+  a = 10.0;
+  b = 0.5;
+
+  print_float(a + b);
+  print_float(a - b);
+  print_float(a * b);
+  print_float(a / b);  
+
+  return 0;
+}

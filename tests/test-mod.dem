@@ -1,0 +1,5 @@
+function main() int
+{
+  print_int(38 % 3);
+  return 0;
+}

@@ -9,7 +9,9 @@ let translate (globals, functions, structs) =
 (*  and i8_t   = L.i8_type   context *)
   and i1_t   = L.i1_type   context
   and void_t = L.void_type context
-  and ptr_t  = L.pointer_type (L.i8_type (context)) in
+  and ptr_t  = L.pointer_type (L.i8_type (context)) 
+  and float_t = L.double_type context
+  in
 		
 
 	let struct_types:(string, L.lltype) Hashtbl.t = Hashtbl.create 50 in
@@ -24,6 +26,7 @@ let translate (globals, functions, structs) =
 
 	let rec ltype_of_typ = function
 		A.Int -> i32_t
+	|       A.Float -> float_t
 	| 	A.Bool -> i1_t
  	|	A.Void -> void_t
 	| 	A.StructType s ->  Hashtbl.find struct_types s
@@ -127,7 +130,8 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
-    
+    let float_format_str = L.build_global_stringptr "%f\n" "fmt" builder in   
+ 
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
        value, if appropriate, and remember their values in the "locals" map *)
@@ -184,6 +188,7 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
     expr builder = function
 	A.Literal i -> L.const_int i32_t i
 (*      | A.MyStringLit str -> L.const_stringz context str *)
+      | A.FloatLiteral f -> L.const_float float_t f
       | A.MyStringLit str -> L.build_global_stringptr str "tmp" builder
       | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | A.Noexpr -> L.const_int i32_t 0
@@ -192,10 +197,27 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in
 	  (match op with
-	    A.Add     -> L.build_add
-	  | A.Sub     -> L.build_sub
-	  | A.Mult    -> L.build_mul
-          | A.Div     -> L.build_sdiv
+	    A.Add     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fadd 
+		      			|"i32" -> L.build_add
+					| _ -> raise(Failure("Can only add ints or floats")) ))
+	   |A.Sub     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fsub 
+		      			|"i32" -> L.build_sub
+					| _ -> raise(Failure("Can only subtract ints or floats")) ))
+	   |A.Mult     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fmul
+		      			|"i32" -> L.build_mul 	
+					| _ -> raise(Failure("Can only multiply ints or floats")) ))
+	   |A.Div     -> (let e1_type_string = L.string_of_lltype (L.type_of e1') in 
+				(match e1_type_string with
+					 "double" -> L.build_fdiv 
+		      			|"i32" -> L.build_sdiv
+					| _ -> raise(Failure("Can only divide ints or floats")) ))
+	  | A.Mod     -> L.build_srem
 	  | A.And     -> L.build_and
 	  | A.Or      -> L.build_or
 	  | A.Equal   -> L.build_icmp L.Icmp.Eq
@@ -278,7 +300,8 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
- 
+    | A.Call ("print_float", [e]) ->
+	L.build_call printf_func [| float_format_str; (expr builder e) |] "printf" builder 
 
     | A.Call ("print", [e])->
         L.build_call printf_func [| (expr builder e) |] "printf" builder

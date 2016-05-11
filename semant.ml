@@ -120,6 +120,9 @@ let check (globals, functions, structs) =
       { typ = Void; fname = "printb"; formals = [(Bool, "x")];
       locals = []; body = [] }; 
 
+      { typ = Void; fname = "print_float"; formals = [(Float, "x")];
+      locals = []; body = [] }; 
+
       { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] };
 
       { typ = MyString; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] };
@@ -139,7 +142,7 @@ let check (globals, functions, structs) =
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep" ]
+ let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep" ]
 
   in
 
@@ -190,12 +193,15 @@ let check (globals, functions, structs) =
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
 	Literal _ -> Int
+      | FloatLiteral _ -> Float
       | BoolLit _ -> Bool
       | MyStringLit _ -> MyString
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
 	(match op with
-          Add | Sub | Mult | Div when t1 = Int && t2 = Int -> Int
+          Add | Sub | Mult | Div  when t1 = Int && t2 = Int -> Int
+        |  Add | Sub | Mult | Div  when t1 = Float && t2 = Float -> Float
+	| Mod when t1 = Int && t2 = Int -> Int
 	| Equal | Neq when t1 = t2 -> Bool
 	| Less | Leq | Greater | Geq when t1 = Int && t2 = Int -> Bool
 	| And | Or when t1 = Bool && t2 = Bool -> Bool

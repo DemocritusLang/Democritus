@@ -10,10 +10,11 @@ let third (_,_,c) = c;;
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
-%token PLUS MINUS STAR DIVIDE ASSIGN NOT DOT DEREF REF
+%token PLUS MINUS STAR DIVIDE MOD ASSIGN NOT DOT DEREF REF
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token LET RETURN IF ELSE FOR INT BOOL VOID STRTYPE FUNCTION STRUCT VOIDSTAR
+%token LET RETURN IF ELSE FOR INT FLOAT BOOL VOID STRTYPE FUNCTION STRUCT VOIDSTAR
 %token <string> STRING
+%token <float> FLOATLITERAL
 %token <int> LITERAL
 %token <string> ID
 %token EOF
@@ -26,8 +27,8 @@ let third (_,_,c) = c;;
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
-%left PLUS MINUS
-%left STAR DIVIDE
+%left PLUS MINUS 
+%left STAR DIVIDE MOD
 %right NOT NEG DEREF REF
 %left DOT
 
@@ -63,6 +64,7 @@ formal_list:
 
 typ:
     INT { Int }
+  | FLOAT { Float }
   | BOOL { Bool }
   | VOID { Void }
   | STRTYPE { MyString }
@@ -104,6 +106,7 @@ expr_opt:
 
 expr:
     LITERAL          { Literal($1) }
+  | FLOATLITERAL     { FloatLiteral($1) }
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | ID               { Id($1) }
@@ -112,6 +115,7 @@ expr:
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr STAR  expr { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
+  | expr MOD expr { Binop($1, Mod,   $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
   | expr NEQ    expr { Binop($1, Neq,   $3) }
   | expr LT     expr { Binop($1, Less,  $3) }
