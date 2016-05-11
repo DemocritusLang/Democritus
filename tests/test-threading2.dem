@@ -1,0 +1,14 @@
+function sayhello(str string) *void
+{
+    let x *void;
+    print("test\n"); // comment this out to actually run test
+    print(str);
+    return x;
+}
+
+
+function main() int
+{
+    thread("sayhello", "hello!\n", 5);
+    return 0;
+}
