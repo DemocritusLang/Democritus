@@ -185,6 +185,16 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 			let index_number = StringMap.find field index_number_list in
 			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_dotop" builder in
 			access_llvalue )
+	
+	
+	|A.Unop(op, e)  ->
+		(match op with
+			A.Deref ->
+				let e_llvalue = (llvalue_expr_getter builder e) in
+			        let e_loaded = L.build_load e_llvalue "loaded_deref" builder in 
+				e_loaded
+			|_ -> raise (Failure("nooo"))
+		)
 	|_ -> raise (Failure ("in llvalue_expr_getter but not a dotop!"))
     and
     expr builder = function
@@ -264,13 +274,13 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 			e_loaded
 	  | A.Ref -> let e_llvalue = (llvalue_expr_getter builder e) in
 		e_llvalue
-	(*	let e_pointer = L.build_alloca (L.pointer_type (L.type_of e')) "tmp" builder in
-		let _ = L.build_store e_llvalue e_pointer builder in
-		e_pointer
-	*)
 	  )
-
-      | A.SAssign(e1, field, e2) -> let e2' = expr builder e2 in
+      | A.Castop(ast_cast_type, e) ->
+ 		let cast_lltype = ltype_of_typ ast_cast_type in
+	(*	let cast_lltype_string = L.string_of_lltype cast_lltype in *)
+		let e_llvalue = expr builder e in
+		L.build_pointercast e_llvalue cast_lltype "plz" builder
+     (* | A.SAssign(e1, field, e2) -> let e2' = expr builder e2 in
 	  (match e1 with
 		A.Id s -> let e1typ = fst(
 			try List.find (fun t -> snd(t) = s) fdecl.A.locals
@@ -296,9 +306,50 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 			let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_Sassign" builder in
 			let _ = L.build_store e2' access_llvalue builder in
 			e2') 
-
-      | A.Assign (s, e) -> let e' = expr builder e in
-	                   ignore (L.build_store e' (lookup s) builder); e'
+	*)
+      | A.Assign (lhs, e2) -> let e2' = expr builder e2 in
+			(match lhs with
+			A.Id s ->ignore (L.build_store e2' (lookup s) builder); e2'
+			|A.Dotop (e1, field) ->
+				(match e1 with 			
+					
+					A.Id s -> let e1typ = fst(
+					try List.find (fun t -> snd(t) = s) fdecl.A.locals
+					with Not_found -> raise(Failure("unable to find" ^ s ^ "in Sassign")))
+					in
+					(match e1typ with
+						A.StructType t -> (try 
+							let index_number_list = StringMap.find t struct_field_index_list in
+							let index_number = StringMap.find field index_number_list in
+							let struct_llvalue = lookup s in
+							let access_llvalue = L.build_struct_gep struct_llvalue index_number field builder in
+							(try (ignore(L.build_store e2' access_llvalue builder);e2')
+								with Not_found -> raise (Failure("unable to store " ^ t )) )
+							with Not_found -> raise (Failure("unable to find" ^ s)) )
+						| _ -> raise (Failure("StructType not found.")))
+				|_ as e1_expr -> let e1'_llvalue = llvalue_expr_getter builder e1_expr in 
+					let loaded_e1' = expr builder e1_expr in
+					let e1'_lltype = L.type_of loaded_e1' in
+					let e1'_struct_name_string_option = L.struct_name e1'_lltype in
+					let e1'_struct_name_string = string_option_to_string e1'_struct_name_string_option in
+					let index_number_list = StringMap.find e1'_struct_name_string struct_field_index_list in
+					let index_number = StringMap.find field index_number_list in
+					let access_llvalue = L.build_struct_gep e1'_llvalue index_number "gep_in_Sassign" builder in
+					let _ = L.build_store e2' access_llvalue builder in
+					e2'
+				)
+			
+			 |A.Unop(op, e)  ->
+					(match op with
+						A.Deref ->
+							let e_llvalue = (llvalue_expr_getter builder e) in
+						        let e_loaded = L.build_load e_llvalue "loaded_deref" builder in 
+							let _ = L.build_store e2' e_loaded builder in
+							e2'	
+						|_ -> raise (Failure("nooo"))
+					)
+			 |_ -> raise (Failure("can't match in assign"))
+			)
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
@@ -319,10 +370,13 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 
 
     | A.Call ("malloc", e) ->
-	let evald_expr_list = List.map (expr builder)e in
+      	let evald_expr_list = List.map (expr builder)e in
 	let evald_expr_arr = Array.of_list evald_expr_list in
 	L.build_call malloc_func evald_expr_arr "malloc" builder
-
+(*
+    | A.Call ("malloc_type", e) ->
+	L.build_malloc e "malloc_type" builder
+*)
   (* File I/O functions *)
     | A.Call("open", e) ->
 	let evald_expr_list = List.map (expr builder)e in

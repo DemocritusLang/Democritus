@@ -1,0 +1,49 @@
+struct LLNode
+{
+  let val int;
+  let next *struct LLNode;
+  let end bool;
+}
+
+function add(data int) *struct LLNode{
+  let a *struct LLNode;
+  a = cast malloc(4) to *struct LLNode;
+  (*a).val = data;
+  (*a).end = false;
+  return a;
+}
+
+function print_list(struct_holder_pointer *struct LLNode) void
+{
+  let struct_holder struct LLNode;
+  struct_holder = *(struct_holder_pointer);
+ 
+  for (!(struct_holder.end)){
+    print_int(struct_holder.val);
+    struct_holder = *(struct_holder.next);
+  }
+  return;
+}
+
+function main() int
+{
+  let temp1 *struct LLNode;
+  let head *struct LLNode;  
+  let i int;
+  let struct_holder struct LLNode;
+  let print_num int;
+ 
+  let test struct LLNode;
+  test.end = true;
+  head = &test;
+
+  for (i = 0 ; i < 5 ; i = i + 1) { 
+    temp1 = add(i);
+    (*temp1).next = head;
+    head = temp1;
+  }
+
+  print_list(head);
+
+  return 0;
+}

@@ -9,10 +9,10 @@ let second (_,b,_) = b;;
 let third (_,_,c) = c;;
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA
+%token COLON SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS STAR DIVIDE MOD ASSIGN NOT DOT DEREF REF
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token LET RETURN IF ELSE FOR INT FLOAT BOOL VOID STRTYPE FUNCTION STRUCT VOIDSTAR
+%token LET RETURN IF ELSE FOR INT FLOAT BOOL VOID STRTYPE FUNCTION STRUCT VOIDSTAR CAST TO SET
 %token <string> STRING
 %token <float> FLOATLITERAL
 %token <int> LITERAL
@@ -125,12 +125,13 @@ expr:
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
   | expr DOT    ID   { Dotop($1, $3) }
-  | expr DOT    ID ASSIGN expr { SAssign($1, $3, $5) }
+/*  | expr DOT    ID ASSIGN expr { SAssign($1, $3, $5) } */
+  | CAST expr TO typ { Castop($4, $2) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | STAR expr %prec DEREF { Unop(Deref, $2) }
   | REF expr { Unop(Ref, $2) }
   | NOT expr         { Unop(Not, $2) }
-  | ID ASSIGN expr   { Assign($1, $3) }
+  | expr ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
 

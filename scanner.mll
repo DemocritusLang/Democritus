@@ -12,6 +12,7 @@ rule token = parse
 | '{'      { LBRACE }
 | '}'      { RBRACE }
 | ';'      { SEMI }
+| ':'      { COLON }
 | ','      { COMMA }
 | '+'      { PLUS }
 | '-'      { MINUS }
@@ -44,6 +45,9 @@ rule token = parse
 | "*void"  {VOIDSTAR }
 | "false"  { FALSE }
 | "function" { FUNCTION }
+| "cast" { CAST }
+| "to" { TO }
+| "set" { SET }
 | "let"      { LET }
 | ['0'-'9']+['.']['0'-'9']+ as lxm { FLOATLITERAL(float_of_string lxm) }
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
