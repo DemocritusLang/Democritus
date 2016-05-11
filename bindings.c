@@ -35,7 +35,7 @@ void *request_from_server(void *urlVoid)
 {
     // www.xkcd.com/index.html
     char *urlStr = (char *) urlVoid;
-    int idxslash = strrchr(urlStr, '/') - urlStr;
+    int idxslash = strchr(urlStr, '/') - urlStr;
     char *url = malloc(idxslash + 1);
     char *filePath = malloc(strlen(urlStr) - (idxslash) + 1);
     memset(url, 0, idxslash - 1);
