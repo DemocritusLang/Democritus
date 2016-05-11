@@ -1,0 +1,18 @@
+function getpointer() *int{
+  let a *int;
+  a = cast malloc(4) to *int;
+  *a = 42;
+  return a;
+}
+
+function main() int
+{
+ 
+  let a *int;
+  let b int; 
+  a = getpointer();
+  b = *a; 
+  print_int(b);
+ 
+  return 0;
+}

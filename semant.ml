@@ -56,7 +56,7 @@ let check (globals, functions, structs) =
   let check_assign lvaluet rvaluet err =
 	if (String.compare (string_of_typ lvaluet) (string_of_typ rvaluet)) == 0
 	then lvaluet
-	else raise err 
+	else raise err
      (*if lvaluet == rvaluet then lvaluet else raise err*)
   in
 
@@ -133,8 +133,12 @@ let check (globals, functions, structs) =
       locals = []; body = [] }; 
 
       { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] };
-
+     
       { typ = MyString; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] };
+
+
+     
+     (* { typ = DerefAndSet; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] }; *)
 
       { typ = Int; fname = "open"; formals = [(MyString, "name"); (Int, "flags"); (Int, "mode")]; locals = []; body = [] };
 
@@ -229,6 +233,7 @@ let check (globals, functions, structs) =
         )
       | Dotop(e1, field) -> let lt = expr e1 in
        	 check_access (lt) (field)
+      | Castop(t, _) -> (*check later*) t
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
 	   Neg when t = Int -> Int
@@ -240,7 +245,7 @@ let check (globals, functions, structs) =
 	 | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
-      | SAssign(e1, field, e2) -> let lt = check_access (expr e1) (field)
+(*      | SAssign(e1, field, e2) -> let lt = check_access (expr e1) (field)
                                 and rt = expr e2 in
         check_assign (lt) (rt)
                  (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
@@ -250,14 +255,11 @@ let check (globals, functions, structs) =
                                   let ltype = check_access (lt) (field)
                                 in  
                                   check_assign (ltype) (rt) (Failure ("illegal assignment " ^ string_of_typ ltype ^
-                                      " = " ^ string_of_typ rt ^ " in " ^ string_of_expr e2))*)
+  *)                                    " = " ^ string_of_typ rt ^ " in " ^ string_of_expr e2))*)
 
-      | Assign(var, e) as ex -> let lt = type_of_identifier var
-                                and rt = expr e in
-        check_assign (lt) (rt)
-                 (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
-                           string_of_typ rt ^ " in " ^ string_of_expr ex))
-      | Call(fname, actuals) as call -> let fd = function_decl fname in
+
+
+     | Call(fname, actuals) as call -> let fd = function_decl fname in
          if List.length actuals != List.length fd.formals then
            raise (Failure ("expecting " ^ string_of_int
              (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
@@ -268,7 +270,24 @@ let check (globals, functions, structs) =
                 " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
              fd.formals actuals;
            fd.typ
-    in
+   
+
+      | Assign(e1, e2) as ex ->
+	(match e1 with
+		Id s -> 
+ 			let lt = type_of_identifier s and rt = expr e2 in
+     			check_assign (lt) (rt) (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^
+                           string_of_typ rt ^ " in " ^ string_of_expr ex))
+		|Unop(op, _) ->
+			(match op with 
+				Deref -> expr e2
+				|_ -> raise(Failure("whatever"))
+			)
+		|Dotop (_, _) -> expr e2
+		| _ -> raise (Failure("whatever"))
+	)
+
+     in
 
     let check_bool_expr e = if expr e != Bool
      then raise (Failure ("expected Boolean expression in " ^ string_of_expr e))

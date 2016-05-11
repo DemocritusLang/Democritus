@@ -18,9 +18,10 @@ type expr =
   | Id of string
   | Binop of expr * op * expr
   | Dotop of expr * string 
+  | Castop of typ * expr
   | Unop of uop * expr
-  | SAssign of expr * string * expr
-  | Assign of string * expr
+(*  | SAssign of expr * string * expr *)
+  | Assign of expr * expr
   | Call of string * expr list
   | Noexpr
 
@@ -71,6 +72,16 @@ let string_of_uop = function
   | Deref -> "*"
   | Ref -> "&"
 
+let rec string_of_typ = function
+    Int -> "int"
+  | Float -> "float"
+  | Bool -> "bool"
+  | Void -> "void"
+  | MyString -> "string"
+  | StructType(s) -> "struct" ^ s
+  | Voidstar -> "voidstar"
+  | PointerType(s) -> "pointerof" ^ (string_of_typ s)
+
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | FloatLiteral(l) -> string_of_float l
@@ -82,8 +93,9 @@ let rec string_of_expr = function
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Dotop(e1, e2) -> string_of_expr e1 ^ ". " ^ e2
-  | SAssign(e1, v, e2) -> string_of_expr(e1) ^ "." ^ v ^ " = " ^ string_of_expr e2
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Castop(t, e) -> "(" ^ string_of_typ t ^ ")" ^ string_of_expr e
+ (* | SAssign(e1, v, e2) -> string_of_expr(e1) ^ "." ^ v ^ " = " ^ string_of_expr e2 *)
+  | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
@@ -100,16 +112,6 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let rec string_of_typ = function
-    Int -> "int"
-  | Float -> "float"
-  | Bool -> "bool"
-  | Void -> "void"
-  | MyString -> "string"
-  | StructType(s) -> "struct" ^ s
-  | Voidstar -> "voidstar"
-  | PointerType(s) -> "pointerof" ^ (string_of_typ s)
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
