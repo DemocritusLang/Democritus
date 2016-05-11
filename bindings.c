@@ -157,7 +157,7 @@ void *default_start_routine(void *arg)
     return arg;
 }
 
-void init_thread(void *(*start_routine) (void *), int arg, int nthreads)
+void init_thread(void *(*start_routine) (void *), void *arg, int nthreads)
 {
     pthread_t thread[nthreads];
     int i;
