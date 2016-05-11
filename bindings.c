@@ -11,14 +11,12 @@
 
 void append_strings(void *str1, void *str2)
 {
-    
     strcat((char *)str1, (char *)str2);
 }
 
 void int_to_string(int n, void *buf)
 {
     sprintf(buf, "%d", n);
-
 }
 
 int exec_prog(void *str1, void *str2, void *str3)

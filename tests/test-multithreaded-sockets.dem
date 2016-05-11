@@ -1,0 +1,25 @@
+function main() int
+{
+  let webaddr string;
+  let i int;
+  let webaddr_old string;
+  let appended string;
+
+  webaddr = "www.smbc-comics.com/comics/2009100";
+  webaddr_old = malloc(100);
+  appended = malloc(100);
+
+  i = 5;
+  for (i > 0) {
+    append_strings(webaddr_old, webaddr);
+    int_to_string(i, appended);
+    append_strings(webaddr_old, appended);
+    append_strings(webaddr_old, ".gif");
+    thread("request_from_server", webaddr_old, 1);
+    memset(webaddr_old, 0, 100);
+    memset(appended, 0, 100);
+    i = i - 1;
+  }
+  print_int(42);
+  return 0;
+}

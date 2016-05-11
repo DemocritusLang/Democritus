@@ -124,6 +124,9 @@ let check (globals, functions, structs) =
  if List.mem "request_from_server" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function request_from_server may not be defined")) else ();
 
+  if List.mem "memset" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function memset may not be defined")) else ();
+
   report_duplicate (fun n -> "duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
 
@@ -156,6 +159,8 @@ let check (globals, functions, structs) =
 
       { typ = Int; fname = "sleep"; formals =  [(Int, "seconds")]; locals = []; body = [] };
       
+      { typ = Int; fname = "memset"; formals =  [(MyString, "s"); (Int, "val"); (Int, "size")]; locals = []; body = [] };
+
       { typ = MyString; fname = "request_from_server"; formals = [(MyString, "link")]; locals = []; body = [] } 
 ;
 
@@ -172,7 +177,7 @@ let check (globals, functions, structs) =
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep"; "request_from_server"; "exec_prog"; "free"; "append_strings"; "int_to_string" ]
+ let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep"; "memset"; "request_from_server"; "exec_prog"; "free"; "append_strings"; "int_to_string" ]
 
   in
 
