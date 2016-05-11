@@ -22,13 +22,7 @@ ga('send', 'pageview');
 <span id="slogan">A webcomic of romance,<br/> sarcasm, math, and language.</span>
 </div>
 <div id="news">
-xkcd updates every Monday, Wednesday, and Friday.
-<script>
-mu = window.location.href.split("#")[1]
-if(/([0-9a-b]+-)[4][0-9a-b]+/.test(mu)) { window.location.href = "http://xkcd.com/1663/#"+mu }
-</script>
-
-
+(Previously: <a href="http://xkcd.com/1288/">Substitutions</a> and <a href="http://xkcd.com/1625/">Substitutions 2</a>)<br />Note: There are various <a href="https://chrome.google.com/webstore/detail/replacerator/gaajhenbcclienfnniphiiambbbninnp?hl=en">browser extensions</a> for this.
 </div>
 </div>
 <div id="bgLeft" class="bg box"></div>
@@ -36,27 +30,27 @@ if(/([0-9a-b]+-)[4][0-9a-b]+/.test(mu)) { window.location.href = "http://xkcd.co
 </div>
 <div id="middleContainer" class="box">
 
-<div id="ctitle">Recent Searches</div>
+<div id="ctitle">Substitutions 3</div>
 <ul class="comicNav">
 <li><a href="/1/">|&lt;</a></li>
-<li><a rel="prev" href="/1677/" accesskey="p">&lt; Prev</a></li>
+<li><a rel="prev" href="/1678/" accesskey="p">&lt; Prev</a></li>
 <li><a href="//c.xkcd.com/random/comic/">Random</a></li>
 <li><a rel="next" href="#" accesskey="n">Next &gt;</a></li>
 <li><a href="/">&gt;|</a></li>
 </ul>
 <div id="comic">
-<img src="//imgs.xkcd.com/comics/recent_searches.png" title="autoexec code posted by verified twitter users" alt="Recent Searches" />
+<img src="//imgs.xkcd.com/comics/substitutions_3.png" title="BREAKING: Channing Tatum and his friends explore haunted city" alt="Substitutions 3" />
 </div>
 <ul class="comicNav">
 <li><a href="/1/">|&lt;</a></li>
-<li><a rel="prev" href="/1677/" accesskey="p">&lt; Prev</a></li>
+<li><a rel="prev" href="/1678/" accesskey="p">&lt; Prev</a></li>
 <li><a href="//c.xkcd.com/random/comic/">Random</a></li>
 <li><a rel="next" href="#" accesskey="n">Next &gt;</a></li>
 <li><a href="/">&gt;|</a></li>
 </ul>
 <br />
-Permanent link to this comic: http://xkcd.com/1678/<br />
-Image URL (for hotlinking/embedding): http://imgs.xkcd.com/comics/recent_searches.png
+Permanent link to this comic: http://xkcd.com/1679/<br />
+Image URL (for hotlinking/embedding): http://imgs.xkcd.com/comics/substitutions_3.png
 <div id="transcript" style="display: none"></div>
 </div>
 <div id="bottom" class="box">
