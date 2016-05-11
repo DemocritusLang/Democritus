@@ -1,0 +1,5 @@
+function main() int
+{
+    request_from_server("www.xkcd.com", "xkcd.html");
+    return 0;
+}
