@@ -93,7 +93,7 @@ let translate (globals, functions, structs) =
   let request_from_server_func = L.declare_function "request_from_server" request_from_server_t the_module in
 
   let memset_t = L.function_type ptr_t [| ptr_t; i32_t; i32_t |] in
-  let memset_func = L.declare_function "memset_t" memset_t the_module in
+  let memset_func = L.declare_function "memset" memset_t the_module in
 
   (* File I/O functions *)
   let open_t = L.function_type i32_t [| ptr_t; i32_t; i32_t |] in

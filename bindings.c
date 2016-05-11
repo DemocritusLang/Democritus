@@ -7,6 +7,7 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #define BUFSIZE 4096
 
 void append_strings(void *str1, void *str2)
