@@ -106,20 +106,20 @@ let check (globals, functions, structs) =
   if List.mem "lseek" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function lseek may not be defined")) else ();
 
+  if List.mem "sleep" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function sleep may not be defined")) else ();
+
   report_duplicate (fun n -> "duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
 
   (* Function declaration for a named function *)
   let built_in_decls_funcs = [
-      (*decls for print_int *)
       { typ = Void; fname = "print_int"; formals = [(Int, "x")];
       locals = []; body = [] };
 
-      (*decls for printb *)
       { typ = Void; fname = "printb"; formals = [(Bool, "x")];
       locals = []; body = [] }; 
 
-      (*decls for thread *)
       { typ = Void; fname = "thread"; formals = [(MyString, "func"); (Int, "arg"); (Int, "nthreads")]; locals = []; body = [] };
 
       { typ = MyString; fname = "malloc"; formals = [(Int, "size")]; locals = []; body = [] };
@@ -132,12 +132,14 @@ let check (globals, functions, structs) =
 
       { typ = Int; fname = "write"; formals =  [(Int, "fd"); (MyString, "buf"); (Int, "count")]; locals = []; body = [] };
 
-      { typ = Int; fname = "lseek"; formals =  [(Int, "fd"); (Int, "offset"); (Int, "whence")]; locals = []; body = [] }
+      { typ = Int; fname = "lseek"; formals =  [(Int, "fd"); (Int, "offset"); (Int, "whence")]; locals = []; body = [] };
+
+      { typ = Int; fname = "sleep"; formals =  [(Int, "seconds")]; locals = []; body = [] }
 ]
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"]
+ let built_in_decls_names = [ "print_int"; "printb"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep" ]
 
   in
 
