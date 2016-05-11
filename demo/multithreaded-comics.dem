@@ -1,3 +1,5 @@
+// run with: ./democritus.native < demo/multithreaded-comics.dem | lli
+
 function main() int
 {
     thread("request_from_server", "www.smbc-comics.com/comics/20091001.gif", 1);
