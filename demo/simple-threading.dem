@@ -1,0 +1,14 @@
+function chill(noop *void) *void 
+{
+    let x *void;
+    print("chillin'...\n");
+    sleep(10);
+    print("ok, done.\n");
+    return x;
+}
+
+function main() int
+{
+    thread("chill", "", 10);
+    return 0;
+}
