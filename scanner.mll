@@ -16,6 +16,7 @@ rule token = parse
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { STAR }
+| '%'	   { MOD }
 | '&'	   { REF }
 | '.'      { DOT }
 | '/'      { DIVIDE }
@@ -34,6 +35,7 @@ rule token = parse
 | "for"    { FOR }
 | "return" { RETURN }
 | "int"    { INT }
+| "float"  { FLOAT }
 | "bool"   { BOOL }
 | "void"   { VOID }
 | "true"   { TRUE }
@@ -43,6 +45,7 @@ rule token = parse
 | "false"  { FALSE }
 | "function" { FUNCTION }
 | "let"      { LET }
+| ['0'-'9']+['.']['0'-'9']+ as lxm { FLOATLITERAL(float_of_string lxm) }
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 | '"'      { read_string (Buffer.create 17) lexbuf }

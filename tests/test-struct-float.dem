@@ -1,0 +1,24 @@
+struct Rectangle
+{
+  let width float;
+  let height float;
+}
+
+struct Circle
+{
+  let radius float;
+  let rectangle struct Rectangle;
+}
+
+function main() int
+{
+  let r struct Rectangle;
+  let c struct Circle;
+
+  r.width = 0.5;
+  c.rectangle.width = r.width;
+
+  print_float(c.rectangle.width);
+
+  return 0;
+}

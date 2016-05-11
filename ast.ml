@@ -1,17 +1,18 @@
 (* Democritus, adapted from MicroC by Stephen Edwards Columbia University *)
 (* Abstract Syntax Tree and functions for printing it *)
 
-type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
+type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Geq |
           And | Or 
 
 type uop = Neg | Not | Deref | Ref
 
-type typ = Int | Bool | Void | MyString | StructType of string | Voidstar | PointerType of typ
+type typ = Int | Float | Bool | Void | MyString | StructType of string | Voidstar | PointerType of typ
 
 type bind = typ * string
 
 type expr =
     Literal of int
+  | FloatLiteral of float
   | BoolLit of bool
   | MyStringLit of string
   | Id of string
@@ -54,6 +55,7 @@ let string_of_op = function
   | Sub -> "-"
   | Mult -> "*"
   | Div -> "/"
+  | Mod -> "%"
   | Equal -> "=="
   | Neq -> "!="
   | Less -> "<"
@@ -71,6 +73,7 @@ let string_of_uop = function
 
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
+  | FloatLiteral(l) -> string_of_float l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | MyStringLit(s) -> s
@@ -100,6 +103,7 @@ let rec string_of_stmt = function
 
 let rec string_of_typ = function
     Int -> "int"
+  | Float -> "float"
   | Bool -> "bool"
   | Void -> "void"
   | MyString -> "string"
