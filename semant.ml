@@ -88,6 +88,12 @@ let check (globals, functions, structs) =
   if List.mem "thread" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function thread may not be defined")) else ();
 
+  if List.mem "exec_prog" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function exec_prog may not be defined")) else ();
+
+  if List.mem "free" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function free may not be defined")) else ();
+
   if List.mem "malloc" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function malloc may not be defined")) else ();
 
@@ -108,6 +114,9 @@ let check (globals, functions, structs) =
 
   if List.mem "sleep" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function sleep may not be defined")) else ();
+ 
+ if List.mem "request_from_server" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function request_from_server may not be defined")) else ();
 
   report_duplicate (fun n -> "duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
@@ -137,12 +146,21 @@ let check (globals, functions, structs) =
 
       { typ = Int; fname = "lseek"; formals =  [(Int, "fd"); (Int, "offset"); (Int, "whence")]; locals = []; body = [] };
 
-      { typ = Int; fname = "sleep"; formals =  [(Int, "seconds")]; locals = []; body = [] }
+      { typ = Int; fname = "sleep"; formals =  [(Int, "seconds")]; locals = []; body = [] };
+      
+      { typ = MyString; fname = "request_from_server"; formals = [(MyString, "link")]; locals = []; body = [] } 
+;
+
+      { typ = Int; fname = "exec_prog"; formals = [(MyString, "arg1"); (MyString, "arg2"); (MyString, "arg3") ]; locals = []; body = [] };
+
+      { typ = Void; fname = "free"; formals = [(MyString, "tofree")]; locals = []; body = [] }
+
+     
 ]
 
   in
 
- let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep" ]
+ let built_in_decls_names = [ "print_int"; "printb"; "print_float"; "thread"; "malloc"; "open"; "close"; "read"; "write"; "lseek"; "sleep"; "request_from_server"; "exec_prog"; "free" ]
 
   in
 
