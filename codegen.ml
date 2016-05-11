@@ -75,11 +75,17 @@ let translate (globals, functions, structs) =
   let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
+  let execl_t = L.var_arg_function_type i32_t [| ptr_t |] in
+  let execl_func = L.declare_function "exec_prog" execl_t the_module in
+
+  let free_t = L.function_type void_t [| ptr_t |] in
+  let free_func = L.declare_function "free" free_t the_module in
+
   (* Declare malloc() *)
   let malloc_t = L.function_type ptr_t [| i32_t |] in
   let malloc_func = L.declare_function "malloc" malloc_t the_module in
 
-  let request_from_server_t = L.function_type ptr_t [| ptr_t; ptr_t |] in
+  let request_from_server_t = L.function_type ptr_t [| ptr_t |] in
   let request_from_server_func = L.declare_function "request_from_server" request_from_server_t the_module in
 
   (* File I/O functions *)
@@ -301,6 +307,16 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 
     | A.Call ("print", [e])->
         L.build_call printf_func [| (expr builder e) |] "printf" builder
+
+    | A.Call ("exec_prog", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	
+	L.build_call execl_func evald_expr_arr "exec_prog" builder
+
+    | A.Call("free", e) ->
+	L.build_call free_func (Array.of_list (List.map (expr builder) e)) "" builder
+
 
     | A.Call ("malloc", e) ->
 	let evald_expr_list = List.map (expr builder)e in

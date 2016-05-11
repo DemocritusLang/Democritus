@@ -8,5 +8,6 @@ function main() int
   lseek(fd, 0, 0);
   read(fd, malloced, 10);
   print(malloced);
+  free(malloced);
   return 0;
 }

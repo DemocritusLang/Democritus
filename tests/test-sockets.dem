@@ -1,5 +1,13 @@
 function main() int
 {
-    request_from_server("www.xkcd.com", "xkcd.html");
+    let fd int;
+    let malloced string;
+    request_from_server("www.xkcd.com/index.html");
+    exec_prog("/bin/cat", "cat", "tests/index.html");
     return 0;
+//    fd = open("tests/index.html", 66, 384);
+//    malloced = malloc(9000);
+//    read(fd, malloced, 9000);
+//    print(malloced);
+    
 }

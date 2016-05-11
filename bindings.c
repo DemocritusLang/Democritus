@@ -6,14 +6,35 @@
 #include <errno.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <unistd.h>
 #define BUFSIZE 4096
+
+
+int exec_prog(void *str1, void *str2, void *str3)
+{
+
+    execl((char *)str1, (char *)str2, (char *)str3, NULL);
+    return 0;
+}
 
 /*
  * Given a URL, send a GET request.
  */
 //void *get_request(void *url, void *filePath)
-void *request_from_server(void *url, void *filePath)
+void *request_from_server(void *urlVoid)
 {
+    // www.xkcd.com/index.html
+    char *urlStr = (char *) urlVoid;
+    int idxslash = strrchr(urlStr, '/') - urlStr;
+    char *url = malloc(idxslash + 1);
+    char *filePath = malloc(strlen(urlStr) - (idxslash) + 1);
+    memset(url, 0, idxslash - 1);
+    memset(filePath, 0, strlen(urlStr) - (idxslash));
+
+    strncat(url, urlStr, idxslash);
+    strncat(filePath, urlStr + idxslash, strlen(urlStr) - (idxslash));
+    char *fileName = strrchr(urlStr, '/') + 1;
+
     char *serverIP;
     int sock;   // socket we connect to remote on
     struct sockaddr_in serverAddr;
@@ -51,7 +72,7 @@ void *request_from_server(void *url, void *filePath)
             "GET %s HTTP/1.0\r\n"
             "Host: %s:%s\r\n"
             "\r\n",
-            url, he->h_name, "80");
+            filePath, url, "80");
     if (send(sock, recvbuf, strlen(recvbuf), 0) != strlen(recvbuf)) {
         fprintf(stderr, "send() failed.");
         exit(1);
@@ -86,21 +107,30 @@ void *request_from_server(void *url, void *filePath)
 	}
     } while (strcmp("\n", recvbuf) != 0);
 
+    char *filePathName = malloc(100);
+    memset(filePathName, 0, 100);
+    strcat(filePathName, "tests/");
+    strcat(filePathName, fileName);
+    
+
     /* open and read into file */
-    FILE *outputFile = fopen(filePath, "w");
+    FILE *outputFile = fopen(filePathName, "w");
     if (outputFile == NULL) {
 	fprintf(stderr, "fopen() failed.");
         exit(1);
     }
 
     size_t n;
+    int total = 0;
     while ((n = fread(recvbuf, 1, sizeof(recvbuf), fd)) > 0) {
 	if (fwrite(recvbuf, 1, n, outputFile) != n) {
 	    fprintf(stderr, "fwrite() failed.");
             exit(1);
 	}
+	total += n;
     }
-
+    fprintf(stderr, "total bytes written: %d\n", total);
+    
     if (ferror(fd)) {
 	fprintf(stderr, "fread() failed.");
         exit(1);
