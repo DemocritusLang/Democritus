@@ -71,6 +71,12 @@ let translate (globals, functions, structs) =
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
 
+  let append_strings_t = L.function_type void_t [| ptr_t; ptr_t |] in
+  let append_strings_func = L.declare_function "append_strings" append_strings_t the_module in
+
+  let int_to_string_t = L.function_type void_t [| i32_t; ptr_t |] in
+  let int_to_string_func = L.declare_function "int_to_string" int_to_string_t the_module in
+
   (* Declare printf(), which the print built-in function will call *)
   let printf_t = L.var_arg_function_type i32_t [| ptr_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
@@ -112,7 +118,7 @@ let translate (globals, functions, structs) =
 
   let param_ty = L.function_type ptr_t [| ptr_t |] in (* a function that returns void_star and takes as argument void_star *)
 let param_ptr = L.pointer_type param_ty in  
-let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
+let thread_t = L.function_type void_t [| param_ptr; ptr_t; i32_t|] in (*a function that returns void and takes (above) and a voidstar and an int *)
   let thread_func = L.declare_function "init_thread" thread_t the_module in
 
 
@@ -359,15 +365,25 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
     | A.Call ("print", [e])->
         L.build_call printf_func [| (expr builder e) |] "printf" builder
 
+    | A.Call ("append_strings", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call append_strings_func evald_expr_arr "" builder
+
+    | A.Call ("int_to_string", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call int_to_string_func evald_expr_arr "" builder
+
+
+
     | A.Call ("exec_prog", e) ->
 	let evald_expr_list = List.map (expr builder)e in
 	let evald_expr_arr = Array.of_list evald_expr_list in
-	
 	L.build_call execl_func evald_expr_arr "exec_prog" builder
 
     | A.Call("free", e) ->
 	L.build_call free_func (Array.of_list (List.map (expr builder) e)) "" builder
-
 
     | A.Call ("malloc", e) ->
       	let evald_expr_list = List.map (expr builder)e in
