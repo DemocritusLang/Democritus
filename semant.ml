@@ -53,10 +53,10 @@ let check (globals, functions, structs) =
   
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
-  let check_assign lvaluet rvaluet err =
-	if (String.compare (string_of_typ lvaluet) (string_of_typ rvaluet)) == 0
+  let check_assign lvaluet rvaluet err = lvaluet
+(*	if (String.compare (string_of_typ lvaluet) (string_of_typ rvaluet)) == 0
 	then lvaluet
-	else raise err 
+	else raise err *)
      (*if lvaluet == rvaluet then lvaluet else raise err*)
   in
 

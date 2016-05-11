@@ -1,0 +1,7 @@
+function main() int
+{
+  let a *int;
+  a = malloc(8);  
+ 
+  return 0;
+}
