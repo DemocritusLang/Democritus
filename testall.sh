@@ -18,6 +18,11 @@ globalerror=0
 
 keep=0
 
+if [ ! -f $MICROC ]; then
+    echo "binary .native file is not present. Exiting."
+    exit 1
+fi
+
 Usage() {
     echo "Usage: testall.sh [options] [.dem files]"
     echo "-k    Keep intermediate files"
