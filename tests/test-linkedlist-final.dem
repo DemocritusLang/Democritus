@@ -1,0 +1,117 @@
+struct LLNode
+{
+  let val int;
+  let next *struct LLNode;
+  let end bool;
+}
+
+function newLLNode(data int) *struct LLNode
+{
+  let a *struct LLNode;
+  a = cast malloc(13) to *struct LLNode;
+  (*a).val = data;
+  (*a).end = false;
+  return a;
+}
+
+function add_front(temp1 *struct LLNode, head *struct LLNode) *struct LLNode
+{
+    (*temp1).next = head;
+    head = temp1;
+    return head;
+}
+
+function add_tail(temp1 *struct LLNode, head *struct LLNode) *struct LLNode
+{
+    let temp *struct LLNode;
+    let struct_holder_pointer *struct LLNode;
+    let struct_holder struct LLNode;  
+    let temp1_val int;
+
+    temp1_val = (*temp1).val;
+ 
+    struct_holder_pointer = (head);
+    struct_holder = *struct_holder_pointer;   
+
+    temp = newLLNode(0);
+    (*temp).end = true;
+
+    for (!(struct_holder.end)){
+      struct_holder_pointer = struct_holder.next;
+      struct_holder = *struct_holder_pointer;
+    }
+
+    (*struct_holder_pointer).val = temp1_val;
+    (*struct_holder_pointer).end = false;
+    (*struct_holder_pointer).next = temp;
+    
+    return head;
+}
+
+
+function delete(delete_val int, head *struct LLNode) *struct LLNode
+{
+    let struct_holder_pointer *struct LLNode;
+    let struct_holder struct LLNode;
+   
+    let struct_holder_pointer_prev *struct LLNode;
+ 
+    struct_holder_pointer = (head);
+    struct_holder = *struct_holder_pointer;   
+
+    for ((struct_holder.val) != delete_val){
+      struct_holder_pointer_prev = struct_holder_pointer;
+  
+      struct_holder_pointer = struct_holder.next;
+      struct_holder = *struct_holder_pointer;
+    }
+
+    (*struct_holder_pointer_prev).next = struct_holder.next;
+    return head;
+}
+
+function print_list(struct_holder_pointer *struct LLNode) void
+{
+  let struct_holder struct LLNode;
+  struct_holder = *(struct_holder_pointer);
+ 
+  for (!(struct_holder.end)){
+    print_int(struct_holder.val);
+    struct_holder = *(struct_holder.next);
+  }
+  return;
+}
+
+function main() int
+{
+  let temp *struct LLNode;
+  let head *struct LLNode;  
+  let i int;
+
+  //init the tail node; 
+  let init struct LLNode;
+
+  init.end = true;
+  head = &init;
+
+  //add to front, 0 to 10
+  for (i = 0 ; i < 6 ; i = i + 1) { 
+     temp = newLLNode(i);
+     head = add_front(temp, head);    
+  }
+
+  print_list(head);
+  print("====\n"); 
+
+  temp = newLLNode(42);
+  head = add_tail(temp, head);
+ 
+  print_list(head);
+  print("====\n");
+
+  head = delete(2, head);
+
+  print_list(head);
+
+  return 0;
+}
