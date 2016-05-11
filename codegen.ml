@@ -99,6 +99,9 @@ let translate (globals, functions, structs) =
   let lseek_t = L.function_type i32_t [| i32_t; i32_t; i32_t |] in
   let lseek_func = L.declare_function "lseek" lseek_t the_module in
 
+  let sleep_t = L.function_type i32_t [| i32_t |] in
+  let sleep_func = L.declare_function "sleep" sleep_t the_module in
+
   let default_t = L.function_type ptr_t [|ptr_t|] in
   let default_func = L.declare_function "default_start_routine" default_t the_module in
 
@@ -310,6 +313,11 @@ let thread_t = L.function_type void_t [| param_ptr; i32_t; i32_t|] in (*a functi
 	let evald_expr_list = List.map (expr builder)e in
 	let evald_expr_arr = Array.of_list evald_expr_list in
 	L.build_call lseek_func evald_expr_arr "lseek" builder
+
+    | A.Call("sleep", e) ->
+	let evald_expr_list = List.map (expr builder)e in
+	let evald_expr_arr = Array.of_list evald_expr_list in
+	L.build_call sleep_func evald_expr_arr "sleep" builder
 
     | A.Call ("thread", e)->
 (*	L.build_call printf_func [| int_format_str ; L.const_int i32_t 8 |] "printf" builder	*)

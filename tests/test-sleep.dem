@@ -1,0 +1,7 @@
+function main() int
+{
+    print("hello...\n");
+    sleep(1);
+    print("goodbye...\n");
+    return 0;
+}
