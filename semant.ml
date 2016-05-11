@@ -67,7 +67,7 @@ let check (globals, functions, structs) =
 	Not_found -> raise (Failure("Struct " ^ a ^ " does not have field " ^ b))
   in
 
-  let check_access lvaluet rvalues = 
+  let check_access lvaluet rvalues =
      match lvaluet with
        StructType s -> match_struct_to_accessor s rvalues
        | _ -> raise (Failure(string_of_typ lvaluet ^ " is not a struct"))
@@ -258,7 +258,8 @@ let check (globals, functions, structs) =
 	 | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
-      | Call(fname, actuals) as call -> let fd = function_decl fname in
+     | Call(fname, actuals) as call -> let fd = function_decl fname in
+     
          if List.length actuals != List.length fd.formals then
            raise (Failure ("expecting " ^ string_of_int
              (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
