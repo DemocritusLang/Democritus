@@ -3,11 +3,6 @@ function main() int
     let fd int;
     let malloced string;
     request_from_server("www.smbc-comics.com/comics/20091001.gif");
-    exec_prog("/bin/cat", "cat", "tests/20091001.gif");
+    exec_prog("/bin/cat", "cat", "20091001.gif");
     return 0;
-//    fd = open("tests/index.html", 66, 384);
-//    malloced = malloc(9000);
-//    read(fd, malloced, 9000);
-//    print(malloced);
-    
 }
