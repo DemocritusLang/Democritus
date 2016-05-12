@@ -72,8 +72,8 @@ TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)
 
 TARFILES = ast.ml codegen.ml Makefile democritus.ml parser.mly README scanner.mll \
-	semant.ml testall.sh demo/ tests/ report.pdf slides.pdf
+	semant.ml testall.sh demo/ tests/
 
 tar : $(TARFILES)
-	cd .. && tar czf Democritus/democritus-llvm.tar.gz \
+	cd .. && tar czf Democritus/DEMO.tar.gz \
 		$(TARFILES:%=Democritus/%)
