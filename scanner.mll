@@ -31,6 +31,8 @@ rule token = parse
 | "&&"     { AND }
 | "||"     { OR }
 | "!"      { NOT }
+| "["      { LEFTBR }
+| "]"      { RIGHTBR }
 | "if"     { IF }
 | "else"   { ELSE }
 | "for"    { FOR }
@@ -45,9 +47,9 @@ rule token = parse
 | "*void"  {VOIDSTAR }
 | "false"  { FALSE }
 | "function" { FUNCTION }
-| "cast" { CAST }
-| "to" { TO }
-| "set" { SET }
+| "cast"   { CAST }
+| "to"     { TO }
+| "set"    { SET }
 | "let"      { LET }
 | ['0'-'9']+['.']['0'-'9']+ as lxm { FLOATLITERAL(float_of_string lxm) }
 | ['0'-'9']+ as lxm { LITERAL(int_of_string lxm) }

@@ -2,7 +2,7 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or 
+          And | Or
 
 type uop = Neg | Not | Deref | Ref
 
@@ -16,11 +16,11 @@ type expr =
   | BoolLit of bool
   | MyStringLit of string
   | Id of string
+  | ArrayRef of string * int
   | Binop of expr * op * expr
-  | Dotop of expr * string 
+  | Dotop of expr * string
   | Castop of typ * expr
   | Unop of uop * expr
-(*  | SAssign of expr * string * expr *)
   | Assign of expr * expr
   | Call of string * expr list
   | Noexpr
@@ -89,12 +89,12 @@ let rec string_of_expr = function
   | BoolLit(false) -> "false"
   | MyStringLit(s) -> s
   | Id(s) -> s
+  | ArrayRef(s, l) -> s ^ "[" ^ string_of_int l ^ "]"
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Dotop(e1, e2) -> string_of_expr e1 ^ ". " ^ e2
   | Castop(t, e) -> "(" ^ string_of_typ t ^ ")" ^ string_of_expr e
- (* | SAssign(e1, v, e2) -> string_of_expr(e1) ^ "." ^ v ^ " = " ^ string_of_expr e2 *)
   | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"

@@ -9,6 +9,7 @@ let second (_,b,_) = b;;
 let third (_,_,c) = c;;
 %}
 
+%token LEFTBR RIGHTBR
 %token COLON SEMI LPAREN RPAREN LBRACE RBRACE COMMA
 %token PLUS MINUS STAR DIVIDE MOD ASSIGN NOT DOT DEREF REF
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
@@ -110,12 +111,12 @@ expr:
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | ID               { Id($1) }
-  |STRING	     { MyStringLit($1) } 
+  | STRING	     { MyStringLit($1) }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
-  | expr STAR  expr { Binop($1, Mult,  $3) }
+  | expr STAR  expr  { Binop($1, Mult,  $3) }
   | expr DIVIDE expr { Binop($1, Div,   $3) }
-  | expr MOD expr { Binop($1, Mod,   $3) }
+  | expr MOD expr    { Binop($1, Mod,   $3) }
   | expr EQ     expr { Binop($1, Equal, $3) }
   | expr NEQ    expr { Binop($1, Neq,   $3) }
   | expr LT     expr { Binop($1, Less,  $3) }
@@ -125,7 +126,7 @@ expr:
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
   | expr DOT    ID   { Dotop($1, $3) }
-/*  | expr DOT    ID ASSIGN expr { SAssign($1, $3, $5) } */
+  | expr LEFTBR LITERAL RIGHTBR { ArrayRef($1, $3) }
   | CAST expr TO typ { Castop($4, $2) }
   | MINUS expr %prec NEG { Unop(Neg, $2) }
   | STAR expr %prec DEREF { Unop(Deref, $2) }

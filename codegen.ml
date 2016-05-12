@@ -212,6 +212,10 @@ let thread_t = L.function_type void_t [| param_ptr; ptr_t; i32_t|] in (*a functi
       | A.BoolLit b -> L.const_int i1_t (if b then 1 else 0)
       | A.Noexpr -> L.const_int i32_t 0
       | A.Id s -> L.build_load (lookup s) s builder
+      | A.ArrayRef (e, l) ->
+          let e_llvalue = (llvalue_expr_getter builder e) in
+          let e_loaded = L.build_load e_llvalue "loaded_deref" builder in
+          e_loaded
       | A.Binop (e1, op, e2) ->
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in
@@ -331,7 +335,8 @@ let thread_t = L.function_type void_t [| param_ptr; ptr_t; i32_t|] in (*a functi
 			)
       | A.Call ("print_int", [e]) | A.Call ("printb", [e]) ->
 	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
-	    "printf" builder
+	  "printf" builder
+
     | A.Call ("print_float", [e]) ->
 	L.build_call printf_func [| float_format_str; (expr builder e) |] "printf" builder 
 
@@ -347,8 +352,6 @@ let thread_t = L.function_type void_t [| param_ptr; ptr_t; i32_t|] in (*a functi
 	let evald_expr_list = List.map (expr builder)e in
 	let evald_expr_arr = Array.of_list evald_expr_list in
 	L.build_call int_to_string_func evald_expr_arr "" builder
-
-
 
     | A.Call ("exec_prog", e) ->
 	let evald_expr_list = List.map (expr builder)e in

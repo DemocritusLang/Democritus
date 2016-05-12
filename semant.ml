@@ -247,6 +247,10 @@ let check (globals, functions, structs) =
       | Dotop(e1, field) -> let lt = expr e1 in
        	 check_access (lt) (field)
       | Castop(t, _) -> (*check later*) t
+      | ArrayRef (e, idx) -> let t = expr e in
+         (match t with
+                PointerType s -> s
+		| _ -> raise (Failure("cannot dereference a " ^ string_of_typ t)) )
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
 	   Neg when t = Int -> Int
