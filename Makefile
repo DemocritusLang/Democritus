@@ -17,7 +17,7 @@ all : clean democritus.native
 .PHONY : clean
 clean :
 	ocamlbuild -clean
-	rm -rf testall.log *.diff democritus scanner.ml parser.ml parser.mli
+	rm -rf testall.log *.diff democritus scanner.ml parser.ml parser.mli *.tar.gz
 	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.ll *.err *.bc *.out tests/*.txt *.html *.gif
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
@@ -72,8 +72,8 @@ TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)
 
 TARFILES = ast.ml codegen.ml Makefile democritus.ml parser.mly README scanner.mll \
-	semant.ml testall.sh $(TESTFILES:%=tests/%)
+	semant.ml testall.sh demo/ tests/ report.pdf slides.pdf
 
-democritus-llvm.tar.gz : $(TARFILES)
-	cd .. && tar czf democritus-llvm/democritus-llvm.tar.gz \
-		$(TARFILES:%=democritus-llvm/%)
+tar : $(TARFILES)
+	cd .. && tar czf Democritus/democritus-llvm.tar.gz \
+		$(TARFILES:%=Democritus/%)
