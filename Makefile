@@ -71,7 +71,7 @@ FAILS = assign1 assign2 assign3 dead1 dead2 expr1 expr2 for1 for2	\
 TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)
 
-TARFILES = ast.ml codegen.ml Makefile democritus.ml parser.mly README scanner.mll \
+TARFILES = ast.ml codegen.ml Makefile democritus.ml parser.mly README.md scanner.mll \
 	semant.ml testall.sh demo/ tests/
 
 tar : $(TARFILES)
